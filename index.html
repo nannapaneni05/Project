@@ -18,6 +18,7 @@
     <script src="js/toolTips.js"></script>
     <script src="js/floorData.js"></script>
     <script src="js/drawWalls.js"></script>
+    <script src="js/devices.js"></script>
     <script src="js/mouseEvents.js"></script>
 </head>
 <body>
@@ -160,10 +161,10 @@
         <tbody class = "tableContent" id = "deviceContent">
 
         </tbody>
+        <tr class = "deviceFooter" id = "deviceFooter"></tr>
     </table>
 </div>
-<div class="addDeviceMenu" id="addDeviceMenu" hidden>
-    <span class = "addDeviceMenuHeader"> Add New Device </span>
+<div class="addDeviceMenu" id="addDeviceMenu" title="Add New Device" hidden>
     <table>
         <tr>
             <td>
@@ -180,8 +181,8 @@
             <td>
                 <select name="deviceType" id="deviceType" class="fa-text-height ui-widget deviceField">
                     <option selected value="base">Please Select</option>
-                    <option value="RECEIVER">Receiver</option>
-                    <option value="SENSOR">Sensor</option>
+                    <option value=5>Receiver</option>
+                    <option value=8>Sensor</option>
                 </select>
             </td>
         </tr>
@@ -203,12 +204,46 @@
                 <input type="number" name="txtDeviceID" min="0" step="1" id="txtDeviceID" class="fa-text-height ui-widget deviceField" placeholder="Device ID"/>
             </td>
         </tr>
+    </table>
+</div>
+<div class="editDeviceMenu" id="editDeviceMenu" title="Add New Device" hidden>
+    <table>
         <tr>
             <td>
-                <button class = "addDeviceSubmit"> Add </button>
+                <label for="editDeviceName">Name</label>
             </td>
             <td>
-                <button class = "cancelDeviceSubmit"> Cancel </button>
+                <input type="text" name="editDeviceName" id="editDeviceName" class="fa-text-height ui-widget deviceField" placeholder="Device Name"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="editDeviceType">Type</label>
+            </td>
+            <td>
+                <select name="editDeviceType" id="editDeviceType" class="fa-text-height ui-widget deviceField">
+                    <option selected value="base">Please Select</option>
+                    <option value="RECEIVER">Receiver</option>
+                    <option value="SENSOR">Sensor</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="editDeviceModel">Model</label>
+            </td>
+            <td>
+                <select name="editDeviceModel" id="editDeviceModel" class="fa-text-height ui-widget deviceField">
+                    <option>Please choose from above</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="editDeviceID">ID</label>
+            </td>
+            <td>
+                <input type="number" name="editDeviceID" min="0" step="1" id="editDeviceID" class="fa-text-height ui-widget deviceField" placeholder="Device ID"/>
             </td>
         </tr>
     </table>
