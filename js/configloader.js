@@ -35,7 +35,6 @@ function getMeta(floorData, domURL, callback) {
 }
 
 function loadFloor(url, floorData, imageWidth, imageHeight, callback) {
-
     var loader = new THREE.TextureLoader();
 
     loader.load(url, function (floorTexture) {
@@ -178,6 +177,12 @@ function loadConfig(file, newFile) {
             return;
         }
 
+        if( !(Array.isArray(config.floors) ) ){
+            var democonfig=[];
+            democonfig.push(config.floors);
+            config.floors = democonfig;
+        }
+
         async.eachSeries(config.floors, function (floor, onSingleFloorLoaded) {
             async.waterfall([
                 function (callback1) { getMeta(floor, domURL, callback1); },
@@ -191,6 +196,10 @@ function loadConfig(file, newFile) {
                 console.log(config);
             }
             else {
+                if( (typeof config.devices === "undefined" || !Array.isArray(config.devices) )&& 1){
+                    config.devices = config.floors[0].devices;
+                };
+            
                 for (var i = 0; i < config.devices.length; i++) {
                     var data = config.devices[i];
 
