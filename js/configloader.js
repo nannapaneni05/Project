@@ -177,8 +177,7 @@ function loadConfig(file, newFile) {
 
         try {
             config = JSON.parse(reader.result);
-        }
-        catch (e) {
+        } catch (e) {
             console.error("Could not read config file. No floors or devices will be loaded.");
             return;
         }
@@ -203,8 +202,7 @@ function loadConfig(file, newFile) {
             // Load devices.
             if (newFile || file == null) {
                 console.log(config);
-            }
-            else {
+            } else {
                 if ((typeof config.devices === "undefined" || !Array.isArray(config.devices) ) && 1) {
                     config.devices = config.floors[0].devices;
                 }
@@ -228,8 +226,8 @@ function loadConfig(file, newFile) {
             }
             if (_floors.floorData.length > 0) {
                 _floors.selectFloor(0);
-            }
-            else {  // If no floors found in the config, load the default floor.
+                saveConfig(true);
+            } else {  // If no floors found in the config, load the default floor.
                 loadDefaultFloor();
             }
 
@@ -261,9 +259,9 @@ function loadConfig(file, newFile) {
 
     if (file instanceof Blob) {
         reader.readAsText(file);
-    }
-    else
+    } else {
         loadDefaultFloor();
+    }
 }
 
 function captureImage() {
@@ -339,8 +337,10 @@ function saveConfig(newConfigFlag) {
 
         devices.push(device);
     });
-    floors = floors[0];
-    floors.devices = devices;
+    if (floors.length) {
+        floors = floors[0];
+        floors.devices = devices;
+    }
 
     var icons = [];
     var dbEntries = [];
@@ -392,8 +392,9 @@ function saveConfig(newConfigFlag) {
     if (!newConfigFlag) {
         saveAs(blob, "config.txt");
     }
-    if (typeof localStorage !== "undefined")
+    if (typeof localStorage !== "undefined") {
         localStorage.setItem("config", json);
+    }
     refreshDevices();
 
 }
@@ -543,7 +544,7 @@ function Floors() {
             });
 
             // document.body.dispatchEvent(onSelectedFloorChanged);  //doesn't work like this.  lets do this manually for now:
-            if (typeof initGrid != "undefined") {
+            if (typeof initGrid !== "undefined") {
                 if (selectedFloor.gridData !== undefined) {
                     initGrid(selectedFloor.mesh.position.x,
                         selectedFloor.mesh.position.y,
@@ -551,8 +552,7 @@ function Floors() {
                         selectedFloor.mesh.geometry.parameters.width,
                         selectedFloor.mesh.geometry.parameters.height,
                         5 / selectedFloor.scale, selectedFloor.gridData.polys, selectedFloor.gridData.plane);
-                }
-                else {
+                } else {
                     initGrid(selectedFloor.mesh.position.x,
                         selectedFloor.mesh.position.y,
                         selectedFloor.mesh.position.z,
@@ -562,7 +562,6 @@ function Floors() {
                         undefined, undefined);
                 }
             }
-
         }
     };
 
@@ -583,7 +582,6 @@ function Floors() {
         this.floorData.forEach(function (floor) {
             scene.remove(floor.mesh);
         });
-
         this.floorData.length = 0;
         this._selectedFloorIndex = -1;
     };
@@ -593,7 +591,6 @@ function Floors() {
             scene.remove(this.floorData[floorIndex].mesh);
             this._selectedFloorIndex = -1;
         }
-
         this.floorData.splice(floorIndex, 1);
     };
 }
