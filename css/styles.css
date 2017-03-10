@@ -12,6 +12,12 @@
     width: 100%;
 }
 
+.active {
+    background-color: #1b6d85 !important;
+    border: 1px solid #1a10b5;
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.5), 0 1px 0;
+}
+
 .subMenuButton {
     background-size: 30px 30px;
     background-repeat: no-repeat;
@@ -43,6 +49,10 @@
 
 .newFile {
     background-image: url("../images/new.PNG");
+}
+
+.moveDevice {
+    background-image: url("../images/move.PNG");
 }
 
 .myButton.file {
@@ -151,7 +161,7 @@ canvas {
     width: 400px;
     left: 60px;
     top: 200px;
-    position: absolute;
+    position: absolute !important;
     color: #060e46;
     border: 1px solid #d9edf7;
     background-color: #f2f3f0;

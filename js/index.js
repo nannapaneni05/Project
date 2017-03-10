@@ -86,10 +86,17 @@ $('a.myButton').click(function() {
             $('.' + classes[i]).show();
         }
     }
+    $(this).siblings().removeClass('active');
+    $(this).addClass('active');
 });
 }
 
 function bindListeners () {
+    $('a.subMenuButton').click(function() {
+        container.style.cursor = "default";
+        $(this).siblings().removeClass('active');
+        $(this).addClass('active');
+    });
     $('#importFile').click( function () {
         $('#loadConfig').trigger('click');
     });
@@ -104,14 +111,14 @@ function bindListeners () {
     });
     $('#originFloorImage').click( function () {
         $('.toolbox-tools, .thirdMenu').attr('hidden', true);
-        $('.toolbox-tools, .thirdMenu')[0].removeAttribute("style");
+        $('.thirdMenu')[1].removeAttribute("style");
         $('.originSubMenu')[0].removeAttribute('hidden');
         $('.originSubMenu.thirdMenu').attr('style', 'display:inline');
         $('.originFloorImage-dialog')[0].removeAttribute('hidden');
     });
     $('#scaleFloorImage').click( function () {
         $('.toolbox-tools, .thirdMenu').attr('hidden', true);
-        $('.toolbox-tools, .thirdMenu')[0].removeAttribute("style");
+        $('.thirdMenu')[0].removeAttribute("style");
         $('.scaleSubMenu')[0].removeAttribute('hidden');
         $('.scaleSubMenu.thirdMenu').attr('style', 'display:inline');
         $('.scaleFloorImage-dialog')[0].removeAttribute('hidden');
@@ -181,6 +188,9 @@ function bindListeners () {
     });
     container.addEventListener('mousedown', function () {
         onMouseDown(event);
+    });
+    container.addEventListener('mousemove', function () {
+        showLocation();
     });
 
     if ($('#confirmNew').length) {
