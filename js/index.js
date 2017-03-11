@@ -94,11 +94,11 @@ function init() {
     sceneVoxels.add(ambientLightVoxels);
     renderer.autoClear = false;
 
-       setTimeout(function(){
-        initDrawLine();
-        //createVoxelAt();
-        //redrawLine();
-    } , 1000);
+    // setTimeout(function(){
+    //     initDrawLine();
+    //     //createVoxelAt();
+    //     //redrawLine();
+    // } , 1000);
 }
 
 var _allCubes=[],_tempCubes=[], _cubeSize=5;
@@ -298,7 +298,15 @@ function createVoxelAt(point) {
     return voxel;
 }
 
-
+function selectRect(){
+    var geometry = new THREE.PlaneGeometry(2, 1);
+    var material = new THREE.MeshBasicMaterial({
+        color: 0xDB1E1E,
+        //wireframe: true
+    });
+    var mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+}
 
 function snapXYZ(x, y, z, gridSize) {
     return new THREE.Vector3(x, y, z)
@@ -364,6 +372,8 @@ function bindListeners () {
     $('.penWalls').click( function () {
         controls.mouseButtons.ORBIT = -1;
         _drawMode.mode = ControlModes.DrawPoly;
+
+        initDrawLine();
     });
     $('#loadConfig').change( function () {
         var file = $('#loadConfig').get(0).files[0];
