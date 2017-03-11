@@ -74,7 +74,7 @@ function loadFloor(url, floorData, imageWidth, imageHeight, callback) {
         floorMesh.position.x = (floorData.building_offset_x || 0) + centerXu - originXPx;
         floorMesh.position.y = (floorData.building_offset_y || 0) - centerYu + originYPx;
         floorMesh.position.z = (floorData.building_offset_z || 0) + floorData.altitude;
-
+        
         var floor = {
             mesh: floorMesh,
             imageURL: floorData.imageURL,
