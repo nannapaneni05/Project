@@ -220,7 +220,6 @@ function loadConfig(file, newFile) {
                     var floor = _floors.floorData.find(function (element) {
                         return element.id == data.floorID
                     });
-
                     loadDevice(device, data.x * floor.scale, data.y * floor.scale, data.floorID);
                 }
             }
@@ -400,6 +399,9 @@ function saveConfig(newConfigFlag) {
 }
 
 function loadDevice(device, x, y, floorID) {
+    if(typeof getTouchPoint !== "function")return false;
+
+    
     var material = new THREE.MeshLambertMaterial({
         color: "green",
         depthWrite: true
@@ -414,9 +416,12 @@ function loadDevice(device, x, y, floorID) {
         geometry = new THREE.CubeGeometry(2, 2, 2);
 
     var deviceMesh = new THREE.Mesh(geometry, material);
-    deviceMesh.position.x = x;
-    deviceMesh.position.y = y;
-    deviceMesh.position.z = _floors.getFloorPosition(floorID).z + 1; // Floor altitude + height of mesh.
+    
+    var point = getTouchPoint(x , y);
+    
+    deviceMesh.position.x = point.x;
+    deviceMesh.position.y = point.y;
+    deviceMesh.position.z = point.z; // Floor altitude + height of mesh.
     deviceMesh.deviceID = device.id;
     deviceMesh.floorID = floorID;
     deviceMesh.name = "device_" + device.id;

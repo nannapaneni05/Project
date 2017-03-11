@@ -94,11 +94,13 @@ function init() {
     sceneVoxels.add(ambientLightVoxels);
     renderer.autoClear = false;
 
-    // setTimeout(function(){
-    //     initDrawLine();
-    //     //createVoxelAt();
-    //     //redrawLine();
-    // } , 1000);
+
+    setTimeout(function(){
+        createPlane();
+        //initDrawLine();
+        //createVoxelAt();
+        //redrawLine();
+    } , 1000);
 }
 
 var _allCubes=[],_tempCubes=[], _cubeSize=5;
@@ -187,6 +189,24 @@ function onDocumentMouseMoveDraw(event){
     //debugger;
 }
 
+function getTouchPoint(x , y){
+    if( typeof plane == "undefined" ){
+        createPlane();
+    }
+
+    _drawMode.mouseX = ((x - container.offsetLeft) / renderer.domElement.clientWidth) * 2 - 1;
+    _drawMode.mouseY = -((y - container.offsetTop) / renderer.domElement.clientHeight) * 2 + 1;
+    
+    raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
+    //debugger;
+    var intersects = raycaster.intersectObject(plane, true);
+    var point;
+    if (intersects.length > 0) {
+        point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
+    }
+    return  point;
+}
+
 
 var _tempLine ,ind=1;
 function redrawLine() {
@@ -237,6 +257,7 @@ function commitPoly(){
 
 //initgrid function Cartographer
 function createPlane(){
+    var index = _floors.selectedFloorIndex||0;
     var selectedFloor = _floors.floorData[_floors.selectedFloorIndex];
     
     var width = selectedFloor.mesh.geometry.parameters.width;
