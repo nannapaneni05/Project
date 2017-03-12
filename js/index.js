@@ -97,6 +97,9 @@ function init() {
 
     setTimeout(function(){
         createPlane();
+        container.addEventListener('mousedown', onDocumentMouseDownDraw, false);
+        container.addEventListener('mouseup', onDocumentMouseUpDraw, false);
+        container.addEventListener('mousemove', onDocumentMouseMoveDraw, false);
         //initDrawLine();
         //createVoxelAt();
         //redrawLine();
@@ -107,8 +110,6 @@ var _allCubes=[],_tempCubes=[], _cubeSize=5;
 function initDrawLine(){
     initCursorVoxel(_cubeSize);
     createPlane();
-    container.addEventListener('mousedown', onDocumentMouseDownDraw, false);
-    container.addEventListener('mousemove', onDocumentMouseMoveDraw, false);
 }
 
 var _cursorVoxel;
@@ -123,13 +124,10 @@ function initCursorVoxel(cursorSize){
     scene.add(_cursorVoxel);
 }
 
-var drawModeRun=false;
+var drawModeRun=false,_selectedDragDevice;
 function onDocumentMouseDownDraw(event){
     event.preventDefault();
     
-    if(_drawMode.mode != ControlModes.DrawPoly){
-        return false;
-    }
     
     //loadDefaultFloor();
     _drawMode.mouseX = ((event.clientX - container.offsetLeft) / renderer.domElement.clientWidth) * 2 - 1;
@@ -137,35 +135,38 @@ function onDocumentMouseDownDraw(event){
     
     raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
 
-    var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
-    _drawMode.selectedObject =intersects[0];
-    //debugger;
-
-    var voxel = createVoxelAt(_drawMode.selectedObject.point);
-    scene.add(voxel);
-    _tempCubes.push(voxel)
-    //console.log('voxel' , voxel);         
+    if(_drawMode.mode == ControlModes.DrawPoly){
+        var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
+        _drawMode.selectedObject =intersects[0];
     
+        var voxel = createVoxelAt(_drawMode.selectedObject.point);
+        scene.add(voxel);
+        _tempCubes.push(voxel)
+        //console.log('voxel' , voxel);         
+        
+        if(drawModeRun   == true){
+            drawModeRun=false;
+            
+            redrawLine();
+            commitPoly();
+            
+            return false;
+        }
+        drawModeRun=true;
+    }else if(_drawMode.mode == ControlModes.MoveDevice){
+        var device = _devices.getDevice(14);    
+        var intersects = raycaster.intersectObjects(_devices.meshList.concat(plane), true);
+        if(intersects[0].object.name.startsWith("device_")){
+        //console.log(intersects[0].object);
+            _selectedDragDevice = intersects[0].object;
 
-    if(drawModeRun   == true){
-        drawModeRun=false;
-        
-        redrawLine();
-        commitPoly();
-        
-        return false;
+        }
     }
-    drawModeRun=true;
 }
 
 function onDocumentMouseMoveDraw(event){
-    if(_drawMode.mode != ControlModes.DrawPoly){
-        return false;
-    }
-
     event.preventDefault();
-
-    _cursorVoxel.visible = false;
+    //_cursorVoxel.visible = false;
         
     //loadDefaultFloor();
     _drawMode.mouseX = ((event.clientX - container.offsetLeft) / renderer.domElement.clientWidth) * 2 - 1;
@@ -175,18 +176,30 @@ function onDocumentMouseMoveDraw(event){
     raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
     var intersects = raycaster.intersectObject(plane, true);
     if (intersects.length > 0) {
-        var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
-        _cursorVoxel.position.x = point.x;
-        _cursorVoxel.position.y = point.y;
-        _cursorVoxel.position.z = point.z;
-        _cursorVoxel.visible = true;
+        if(_drawMode.mode == ControlModes.DrawPoly){
+                var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
+                _cursorVoxel.position.x = point.x;
+                _cursorVoxel.position.y = point.y;
+                _cursorVoxel.position.z = point.z;
+                _cursorVoxel.visible = true;
 
-        _drawMode.selectedObject = intersects[0];
+                _drawMode.selectedObject = intersects[0];
+            
+            if(_tempCubes.length < 1)return false;
+            redrawLine();
+        }else if(typeof _selectedDragDevice !== "undefined" ){
+            var offset = new THREE.Vector3();
+            _selectedDragDevice.position.copy(intersects[0].point.sub(offset));
+            _selectedDragDevice.deviceOutline.position.copy(intersects[0].point.sub(offset));                
+        }
     }
-    
-    if(_tempCubes.length < 1)return false;
-    redrawLine();
     //debugger;
+}
+
+function onDocumentMouseUpDraw(){
+    if(typeof _selectedDragDevice !== "undefined" ){
+        _selectedDragDevice = undefined;
+    }
 }
 
 function getTouchPoint(x , y){
@@ -257,8 +270,12 @@ function commitPoly(){
 
 //initgrid function Cartographer
 function createPlane(){
-    var index = _floors.selectedFloorIndex||0;
-    var selectedFloor = _floors.floorData[_floors.selectedFloorIndex];
+    var index = 0;
+    if(_floors.selectedFloorIndex > 0){
+        index = _floors.selectedFloorIndex||0;
+    }
+
+    var selectedFloor = _floors.floorData[index];
     
     var width = selectedFloor.mesh.geometry.parameters.width;
     var height = selectedFloor.mesh.geometry.parameters.height;
