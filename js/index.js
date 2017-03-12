@@ -124,11 +124,11 @@ function initCursorVoxel(cursorSize){
     scene.add(_cursorVoxel);
 }
 
-var drawModeRun=false,_selectedDragDevice;
+var drawModeRun=false,_selectedDragDevice,lastMouseClick;
 function onDocumentMouseDownDraw(event){
     event.preventDefault();
     
-    
+    lastMouseClick = getTouchPoint(event.clientX , event.clientY);
     //loadDefaultFloor();
     _drawMode.mouseX = ((event.clientX - container.offsetLeft) / renderer.domElement.clientWidth) * 2 - 1;
     _drawMode.mouseY = -((event.clientY - container.offsetTop) / renderer.domElement.clientHeight) * 2 + 1;
@@ -200,6 +200,10 @@ function onDocumentMouseUpDraw(){
     if(typeof _selectedDragDevice !== "undefined" ){
         _selectedDragDevice = undefined;
     }
+}
+
+function lastTouchPoint(){
+    return lastMouseClick;
 }
 
 function getTouchPoint(x , y){

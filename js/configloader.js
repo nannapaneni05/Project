@@ -141,7 +141,7 @@ function Devices() {
 
     this.getDevice = function (deviceID) {
         return this.deviceList.find(function (element) {
-            return element.id.toString() === deviceID;
+            return element.id.toString() == deviceID;
         });
     };
 
@@ -399,7 +399,7 @@ function saveConfig(newConfigFlag) {
 }
 
 function loadDevice(device, x, y, floorID) {
-    if(typeof getTouchPoint !== "function")return false;
+    if(typeof lastTouchPoint !== "function")return false;
 
     
     var material = new THREE.MeshLambertMaterial({
@@ -417,7 +417,10 @@ function loadDevice(device, x, y, floorID) {
 
     var deviceMesh = new THREE.Mesh(geometry, material);
     
-    var point = getTouchPoint(x , y);
+    var point = lastTouchPoint();
+    if(typeof point == "undefined"){
+        point = getTouchPoint(x , y);
+    }
     
     deviceMesh.position.x = point.x;
     deviceMesh.position.y = point.y;
