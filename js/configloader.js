@@ -74,7 +74,7 @@ function loadFloor(url, floorData, imageWidth, imageHeight, callback) {
         floorMesh.position.x = (floorData.building_offset_x || 0) + centerXu - originXPx;
         floorMesh.position.y = (floorData.building_offset_y || 0) - centerYu + originYPx;
         floorMesh.position.z = (floorData.building_offset_z || 0) + floorData.altitude;
-        
+
         var floor = {
             mesh: floorMesh,
             imageURL: floorData.imageURL,
@@ -95,8 +95,8 @@ function loadFloor(url, floorData, imageWidth, imageHeight, callback) {
             gridData: undefined //filled in by grid constuctor
         };
 
-        if (typeof floorData.areas !== "undefined") {
-            floor.savedAreas = floorData.areas; // List of polys on this floor saved to the config file.
+        if (typeof floorData.walls !== "undefined") {
+            floor.savedAreas = floorData.walls; // List of polys on this floor saved to the config file.
             // initGrid should read these values to create poly objects when it is first called for a floor.
         }
 
@@ -290,7 +290,7 @@ function saveConfig(newConfigFlag) {
             imageHeightPx: entry.imageHeightPx
         };
 
-        // Save polys, also known as "areas".
+        // Save polys, also known as "walls".
         if (typeof entry.savedAreas == "undefined") {
             var walls = new Array();
 
@@ -399,9 +399,10 @@ function saveConfig(newConfigFlag) {
 }
 
 function loadDevice(device, x, y, floorID) {
-    if(typeof lastTouchPoint !== "function")return false;
+    if (typeof lastTouchPoint !== "function") {
+        return false;
+    }
 
-    
     var material = new THREE.MeshLambertMaterial({
         color: "green",
         depthWrite: true
@@ -416,12 +417,12 @@ function loadDevice(device, x, y, floorID) {
         geometry = new THREE.CubeGeometry(2, 2, 2);
 
     var deviceMesh = new THREE.Mesh(geometry, material);
-    
+
     var point = lastTouchPoint();
-    if(typeof point == "undefined"){
-        point = getTouchPoint(x , y);
+    if (typeof point == "undefined") {
+        point = getTouchPoint(x, y);
     }
-    
+
     deviceMesh.position.x = point.x;
     deviceMesh.position.y = point.y;
     deviceMesh.position.z = point.z; // Floor altitude + height of mesh.
