@@ -11,6 +11,7 @@ var ControlModes = {
     DeviceManager: 'deviceManager',
     PlaceDevice: 'placeDevice',
     AddDevice: 'addDevice',
+    MoveDevice: 'moveDevice',
     EditDevice: 'editDevice',
     DrawPoly: 'drawPoly',
     Select: 'select'
@@ -42,7 +43,7 @@ function onDocumentMouseDownDraw(event){
 
     raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
 
-    if(_drawMode.mode == ControlModes.DrawPoly){
+    if (_drawMode.mode == ControlModes.DrawPoly) {
         var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
         _drawMode.selectedObject =intersects[0];
 
@@ -60,8 +61,7 @@ function onDocumentMouseDownDraw(event){
             return false;
         }
         drawModeRun=true;
-    }else if(_drawMode.mode == ControlModes.MoveDevice){
-        var device = _devices.getDevice(14);
+    } else if(_drawMode.mode == ControlModes.MoveDevice) {
         var intersects = raycaster.intersectObjects(_devices.meshList.concat(plane), true);
         if(intersects[0].object.name.startsWith("device_")){
             //console.log(intersects[0].object);
@@ -235,7 +235,7 @@ function createVoxelAt(point) {
 function selectRect(){
     var geometry = new THREE.PlaneGeometry(2, 1);
     var material = new THREE.MeshBasicMaterial({
-        color: 0xDB1E1E,
+        color: 0xDB1E1E
         //wireframe: true
     });
     var mesh = new THREE.Mesh(geometry, material);

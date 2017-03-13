@@ -114,6 +114,22 @@
     background-image: url("../images/add.png");
 }
 
+.selectDevice {
+    background-image: url("../images/select.png");
+}
+
+.selectButton {
+    background-image: url("../images/select.png");
+}
+
+.panSelect {
+    background-image: url("../images/add.png");
+}
+
+.zoomSelect {
+    background-image: url("../images/zoom.png");
+}
+
 .ui-icon {
     height:40px;
     width: 39px;

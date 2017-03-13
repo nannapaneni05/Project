@@ -2,7 +2,6 @@
  * Created by Vamsi on 2/28/2017.
  */
 var _floors = new Floors();
-var _devices = new Devices();
 
 function loadDefaultFloor() {
     var domURL = window.URL || window.webkitURL || window;
@@ -132,29 +131,6 @@ function b64toBlob(b64Data, contentType, sliceSize) {
 
     var blob = new Blob(byteArrays, {type: contentType});
     return blob;
-}
-
-function Devices() {
-    this.deviceList = [];
-    this.meshList = [];
-    this.visibleDevices = [];
-
-    this.getDevice = function (deviceID) {
-        return this.deviceList.find(function (element) {
-            return element.id.toString() == deviceID;
-        });
-    };
-
-    this.clear = function () {
-        this.meshList.forEach(function (device) {
-            scene.remove(device);
-            scene.remove(device.edges);
-        });
-
-        this.deviceList.length = 0;
-        this.meshList.length = 0;
-        this.visibleDevices.length = 0;
-    };
 }
 
 function loadConfig(file, newFile) {
@@ -424,9 +400,9 @@ function loadDevice(device, x, y, floorID) {
         point = getTouchPoint(x, y);
     }
 
-    deviceMesh.position.x = point.x;
-    deviceMesh.position.y = point.y;
-    deviceMesh.position.z = point.z; // Floor altitude + height of mesh.
+    deviceMesh.position.x = typeof point == "undefined" ? x : point.x;
+    deviceMesh.position.y = typeof point == "undefined" ? y : point.y;
+    deviceMesh.position.z = typeof point == "undefined" ? 0 : point.z; // Floor altitude + height of mesh.
     deviceMesh.deviceID = device.id;
     deviceMesh.floorID = floorID;
     deviceMesh.name = "device_" + device.id;

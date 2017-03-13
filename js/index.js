@@ -97,7 +97,9 @@ $('a.myButton').click(function() {
 }
 
 function bindListeners () {
-    $('a.subMenuButton').click(function() {
+    document.onkeydown = onDocumentKeyDown;
+
+    $('a.subMenuButton.penWalls, a.subMenuButton.cutWalls, a.subMenuButton.deleteWalls, a.subMenuButton.addDevice, a.subMenuButton.moveDevice').click(function() {
         container.style.cursor = "default";
         $(this).siblings().removeClass('active');
         $(this).addClass('active');
@@ -168,7 +170,7 @@ function bindListeners () {
 
     $('.device').click(function () {
         $('#deviceMenu')[0].removeAttribute('hidden');
-        refreshDevices(); //TODO: change this function to load the device list from config in local storage
+        refreshDevices();
     });
     $('#deleteDevice').click(function () {
         deleteDevice();
@@ -178,6 +180,11 @@ function bindListeners () {
     });
     $('#moveDevice').click(function () {
         container.style.cursor = "crosshair";
+        _drawMode.mode = ControlModes.MoveDevice;
+    });
+    $('#originFloorImage').click(function () {
+        container.style.cursor = "crosshair";
+        _drawMode.mode = ControlModes.SetOrigin;
     });
     $('#deviceContainerClose').click(function () {
         $('.deviceMenu').attr('hidden', true);

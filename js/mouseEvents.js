@@ -5,8 +5,6 @@ function onMouseDown (e) {
     e.preventDefault();
 
     switch (_drawMode.mode) {
-        case ControlModes.PlaceDevice:
-            break;
         case ControlModes.AddDevice:
             $('#addDeviceMenu').dialog('open');
             var $div = $(e.target);
@@ -18,6 +16,8 @@ function onMouseDown (e) {
         case ControlModes.EditDevice:
             $("#editDeviceMenu").dialog('open');
             editDevice();
+            break;
+        case ControlModes.SetOrigin:
             break;
     }
 }
@@ -65,5 +65,16 @@ function getLocation (device) {
         text.innerHTML = devName;
         container.appendChild(location);
         container.appendChild(text);
+    }
+}
+
+function onDocumentKeyDown(e) {
+    var keyevent = window.event ? event : e;
+    switch (keyevent.keyCode) {
+        case 27:
+            $(".subMenu").children().removeClass('active');
+            container.style.cursor = "default";
+            _drawMode.mode = '';
+            break;
     }
 }
