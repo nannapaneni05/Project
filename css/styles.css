@@ -124,6 +124,11 @@ div#ThreeJS{
     left: 48px;
 }
 
+#deviceDetailsLocation {
+    position: absolute;
+    background: white;
+}
+
 .myButton {
     background-size: 30px 30px;
     background-repeat: no-repeat;

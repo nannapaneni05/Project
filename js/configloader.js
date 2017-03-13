@@ -203,24 +203,25 @@ function loadConfig(file, newFile) {
             if (newFile || file == null) {
                 console.log(config);
             } else {
-                if ((typeof config.devices === "undefined" || !Array.isArray(config.devices) ) && 1) {
+                if ((typeof config.devices === "undefined" || !Array.isArray(config.devices) ) && 1 && config.floors[0]) {
                     config.devices = config.floors[0].devices;
                 }
+                if (config.devices) {
+                    for (var i = 0; i < config.devices.length; i++) {
+                        var data = config.devices[i];
 
-                for (var i = 0; i < config.devices.length; i++) {
-                    var data = config.devices[i];
+                        var device = {
+                            id: data.id,
+                            name: data.name,
+                            model: data.model,
+                            deviceType: data.deviceType
+                        };
 
-                    var device = {
-                        id: data.id,
-                        name: data.name,
-                        model: data.model,
-                        deviceType: data.deviceType
-                    };
-
-                    var floor = _floors.floorData.find(function (element) {
-                        return element.id == data.floorID
-                    });
-                    loadDevice(device, data.x * floor.scale, data.y * floor.scale, data.floorID);
+                        var floor = _floors.floorData.find(function (element) {
+                            return element.id == data.floorID
+                        });
+                        loadDevice(device, data.x * floor.scale, data.y * floor.scale, data.floorID);
+                    }
                 }
             }
             if (_floors.floorData.length > 0) {

@@ -47,8 +47,6 @@ function init() {
     container = document.getElementById('ThreeJS');
     container.appendChild( renderer.domElement );
 
-
-
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.minPolarAngle = Math.PI * (4 / 8);
     controls.maxPolarAngle = Math.PI * (8 / 8);
@@ -74,45 +72,14 @@ function init() {
         container.addEventListener('mousedown', onDocumentMouseDownDraw, false);
         container.addEventListener('mouseup', onDocumentMouseUpDraw, false);
         container.addEventListener('mousemove', onDocumentMouseMoveDraw, false);
+        //initDrawLine();
+        //createVoxelAt();
+        //redrawLine();
     } , 1000);
 }
 
-var _allCubes=[],_tempCubes=[], _cubeSize=5, _cursorVoxel;
+var _allCubes=[],_tempCubes=[], _cubeSize=5, _tempLine, _cursorVoxel, drawModeRun=false, _selectedDragDevice, lastMouseClick;
 var _currentPen  = 0, _isCubesVisible=true, polylength=0; //default color
-var drawModeRun=false, _selectedDragDevice, lastMouseClick;
-var _tempLine ,ind=1;
-
-//initgrid function Cartographer
-function createPlane(){
-    var index = 0;
-    if(_floors.selectedFloorIndex > 0){
-        index = _floors.selectedFloorIndex||0;
-    }
-
-    var selectedFloor = _floors.floorData[index];
-
-    var width = selectedFloor.mesh.geometry.parameters.width;
-    var height = selectedFloor.mesh.geometry.parameters.height;
-    var geometry = new THREE.PlaneBufferGeometry(width, height);
-
-    plane = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
-        visible: false,
-        depthWrite: false
-    }));
-
-    plane.position.x = selectedFloor.mesh.position.x;
-    plane.position.y = selectedFloor.mesh.position.y;
-    plane.position.z = selectedFloor.mesh.position.z;
-    plane.name = "plane";
-    scene.add(plane);
-
-
-    selectedFloor.gridData = {
-        'polys':[],
-        'plane':plane,
-        'cubeSize':_cubeSize
-    };
-}
 
 function showSubtoolBar() {
 $('a.myButton').click(function() {
@@ -235,7 +202,6 @@ function bindListeners () {
         $('#confirmNew').dialog({
             autoOpen: false,
             resizeable: false,
-            height: 190,
             width: 450,
             modal: true,
             buttons: {
