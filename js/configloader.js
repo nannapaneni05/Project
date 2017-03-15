@@ -74,6 +74,13 @@ function loadFloor(url, floorData, imageWidth, imageHeight, callback) {
         floorMesh.position.y = (floorData.building_offset_y || 0) - centerYu + originYPx;
         floorMesh.position.z = (floorData.building_offset_z || 0) + floorData.altitude;
 
+        var emptyGirdData ={
+            'polys': [],
+            'devices': [],
+            'plane': plane,
+            'cubeSize': _cubeSize
+        };
+
         var floor = {
             mesh: floorMesh,
             imageURL: floorData.imageURL,
@@ -91,7 +98,7 @@ function loadFloor(url, floorData, imageWidth, imageHeight, callback) {
             imageWidthPx: imageWidth,
             imageHeightPx: imageHeight,//these are not part of the database
             //width: imageWidth / floorData.scale, // <-- This is unnecessary since the data is already in the structure
-            gridData: undefined //filled in by grid constuctor
+            gridData: emptyGirdData //filled in by grid constuctor
         };
 
         if (typeof floorData.walls !== "undefined") {
@@ -176,6 +183,7 @@ function loadConfig(file, newFile) {
             });
         }, function () {
             // Load devices.
+            //debugger;
             if (newFile || file == null) {
                 console.log(config);
             } else {
@@ -211,6 +219,11 @@ function loadConfig(file, newFile) {
                 saveConfig(true);
             } else {  // If no floors found in the config, load the default floor.
                 loadDefaultFloor();
+            }
+
+            //debugger;
+            if(typeof config.floors[0].walls !== "undefined"){
+                loadWalls(config.floors[0].walls);
             }
 
             if (typeof config.txIcons !== "undefined") {
@@ -274,9 +287,9 @@ function saveConfig(newConfigFlag) {
         };
 
         // Save polys, also known as "walls".
-        if (typeof entry.savedAreas == "undefined") {
+        
+        if (1 || typeof entry.savedAreas == "undefined") {
             var walls = new Array();
-
             if (typeof entry.gridData !== "undefined" && typeof entry.gridData.polys !== "undefined") {
                 entry.gridData.polys.forEach(function (poly) {
                     var points = new Array();

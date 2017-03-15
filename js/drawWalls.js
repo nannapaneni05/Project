@@ -46,7 +46,7 @@ function onDocumentMouseDownDraw(event){
     if (_drawMode.mode == ControlModes.DrawPoly) {
         var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
         _drawMode.selectedObject =intersects[0];
-
+        //debugger;
         var voxel = createVoxelAt(_drawMode.selectedObject.point);
         scene.add(voxel);
         _tempCubes.push(voxel)
@@ -54,7 +54,6 @@ function onDocumentMouseDownDraw(event){
 
         if(drawModeRun   == true){
             drawModeRun=false;
-
             redrawLine();
             commitPoly();
 
@@ -83,11 +82,13 @@ function redrawLine() {
     var z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
     var endPoint;
 
+
     for (var i = 0; i < _tempCubes.length; i++) {
         endPoint = snapPoint(_tempCubes[i].position, _cubeSize);
         geometry.vertices.push(endPoint);
     }
-    if (1){//_drawMode.mode === ControlModes.DrawPoly && typeof endPoint !== "undefined") {
+
+    if (_drawMode.mode === ControlModes.DrawPoly && typeof endPoint !== "undefined") {
         endPoint = snapXYZ(_drawMode.selectedObject.point.x, _drawMode.selectedObject.point.y, z, _cubeSize);
         geometry.vertices.push(endPoint);
     }
@@ -112,8 +113,13 @@ function commitPoly(){
     };
 
     _floors.floorData[_floors.selectedFloorIndex].gridData.polys.push(poly);
+
+    saveConfig(true);
+    
+    //reset the values
     _tempCubes = [];
     _tempLine=undefined;
+        
 }
 
 
@@ -167,6 +173,7 @@ function onDocumentMouseMoveDraw(event){
     var intersects = raycaster.intersectObject(plane, true);
     if (intersects.length > 0) {
         if(_drawMode.mode == ControlModes.DrawPoly){
+            //debugger;
             var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
             _cursorVoxel.position.x = point.x;
             _cursorVoxel.position.y = point.y;
@@ -247,6 +254,25 @@ function selectRect(){
     var mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 }
+
+function loadWalls(polys) {
+    var z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
+    
+    if(polys.length){
+        $.each(polys , function(i, poly){
+            $.each(poly.points , function(i , point){
+                var snpoint = snapXYZ(point.x, point.y, z, _cubeSize);
+                var voxel = createVoxelAt(snpoint);
+                scene.add(voxel);
+                _tempCubes.push(voxel)
+                
+            });
+            redrawLine();
+            commitPoly();
+        });
+    }
+}
+
 
 function snapXYZ(x, y, z, gridSize) {
     return new THREE.Vector3(x, y, z)
