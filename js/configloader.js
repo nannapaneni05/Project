@@ -182,6 +182,7 @@ function loadConfig(file, newFile) {
                 if ((typeof config.devices === "undefined" || !Array.isArray(config.devices) ) && 1 && config.floors[0]) {
                     config.devices = config.floors[0].devices;
                 }
+
                 if (config.devices) {
                     for (var i = 0; i < config.devices.length; i++) {
                         var data = config.devices[i];
@@ -196,10 +197,15 @@ function loadConfig(file, newFile) {
                         var floor = _floors.floorData.find(function (element) {
                             return element.id == data.floorID
                         });
+                        // debugger;
+                        // if(config.plane)
                         loadDevice(device, data.x * floor.scale, data.y * floor.scale, data.floorID);
+                        //saveConfig(true);
+                    
                     }
                 }
             }
+
             if (_floors.floorData.length > 0) {
                 _floors.selectFloor(0);
                 saveConfig(true);
@@ -376,6 +382,7 @@ function saveConfig(newConfigFlag) {
 }
 
 function loadDevice(device, x, y, floorID) {
+    
     if (typeof lastTouchPoint !== "function") {
         return false;
     }
@@ -395,10 +402,7 @@ function loadDevice(device, x, y, floorID) {
 
     var deviceMesh = new THREE.Mesh(geometry, material);
 
-    var point = lastTouchPoint();
-    if (typeof point == "undefined") {
-        point = getTouchPoint(x, y);
-    }
+    
 
     deviceMesh.position.x = typeof point == "undefined" ? x : point.x;
     deviceMesh.position.y = typeof point == "undefined" ? y : point.y;
@@ -427,6 +431,8 @@ function loadDevice(device, x, y, floorID) {
     deviceOutline.position.copy(deviceMesh.position);
     deviceOutline.rotation.copy(deviceMesh.rotation);
     deviceMesh.deviceOutline = deviceOutline;
+
+    //_floors.floorData[0].gridData.devices.push(device);
 }
 
 function Floors() {

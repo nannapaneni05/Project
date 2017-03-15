@@ -27,6 +27,7 @@ $(document).ready(function () {
     addDevice();
     editDevice();
     var config = null;
+    
     if (typeof localStorage !== "undefined")
         config = localStorage.getItem("config");
     if (config !== null) {
