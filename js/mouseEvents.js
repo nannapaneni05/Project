@@ -72,6 +72,10 @@ function onDocumentKeyDown(e) {
     var keyevent = window.event ? event : e;
     switch (keyevent.keyCode) {
         case 27:
+            if (_drawMode.mode == ControlModes.DrawPoly) {
+                stopDrawWall();
+            }
+
             $(".subMenu").children().removeClass('active');
             container.style.cursor = "default";
             _drawMode.mode = '';

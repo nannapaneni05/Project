@@ -33,6 +33,20 @@ function initCursorVoxel(cursorSize){
     scene.add(_cursorVoxel);
 }
 
+function stopDrawWall() {
+    //_drawMode.mode = _drawMode.Select;
+    $.each(_tempCubes , function(i , cube){
+        scene.remove(cube);
+    });
+
+    scene.remove(_tempLine);
+    scene.remove(_cursorVoxel);
+
+    _tempCubes = [];
+    _tempLine=undefined;
+        
+}
+
 function onDocumentMouseDownDraw(event){
     event.preventDefault();
 
