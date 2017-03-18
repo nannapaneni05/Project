@@ -74,7 +74,7 @@ function init() {
         //initDrawLine();
         //createVoxelAt();
         //redrawLine();
-    } , 1000);
+    } , 2000);
 }
 
 
@@ -189,10 +189,16 @@ function bindListeners () {
         container.style.cursor = "crosshair";
         _drawMode.mode = ControlModes.MoveDevice;
     });
+    $('#scaleFloorImage').click(function () {
+        //container.style.cursor = "crosshair";
+        _drawMode.mode = ControlModes.SetScale;
+    });
+
     $('#originFloorImage').click(function () {
         container.style.cursor = "crosshair";
         _drawMode.mode = ControlModes.SetOrigin;
     });
+
     $('#deviceContainerClose').click(function () {
         $('.deviceMenu').attr('hidden', true);
     });
