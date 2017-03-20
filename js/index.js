@@ -145,6 +145,18 @@ function bindListeners () {
         _drawMode.mode = ControlModes.DrawPoly;
         initDrawLine();
     });
+
+    $('.cutWalls').click( function () {
+        _drawMode.mode = ControlModes.Select;
+        
+    });
+
+    $('.deleteWalls').click( function () {
+        removeSelectedPoly();
+    });
+
+
+
     $('#loadConfig').change( function () {
         var file = $('#loadConfig').get(0).files[0];
         if (file) {
