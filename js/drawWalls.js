@@ -283,17 +283,26 @@ function redrawLine() {
     var endPoint;
 
 
+    var firstPoint;
     for (var i = 0; i < _tempCubes.length; i++) {
         endPoint = snapPoint(_tempCubes[i].position, _cubeSize);
         geometry.vertices.push(endPoint);
+        firstPoint=firstPoint||endPoint;
     }
 
     if (_drawMode.mode === ControlModes.DrawPoly && typeof endPoint !== "undefined") {
         endPoint = snapXYZ(_drawMode.selectedObject.point.x, _drawMode.selectedObject.point.y, z, _cubeSize);
         geometry.vertices.push(endPoint);
     }
-    // console.log(geometry.vertices.length);
 
+    if(typeof firstPoint !== "undefined"){
+        var floorScale = _floors.floorData[_floors.selectedFloorIndex].scale;
+        var distO = Math.sqrt( Math.pow(( endPoint.x - firstPoint.x), 2) + Math.pow((endPoint.y-firstPoint.y), 2) );
+        var dist = Math.sqrt( Math.pow(( endPoint.x/floorScale - firstPoint.x/floorScale), 2) + Math.pow((endPoint.y/floorScale-firstPoint.y/floorScale), 2) );
+        console.log(distO , dist);
+        
+    }
+    
     if (_tempCubes.length > 0)
         material.color = _tempCubes[0].material.color;
 
@@ -532,10 +541,10 @@ function setNewScale(distance ,distancePx ){
     floor.scale = newScale; // Appearance of floor in canvas is unchanged.
     saveConfig(true);
 
-    if (typeof localStorage !== "undefined")
+    if (typeof localStorage !== "undefined"){
         config = localStorage.getItem("config");
-    
-    loadConfig(new Blob([config], { type: "text/plain;charset=utf-8" }));
+        loadConfig(new Blob([config], { type: "text/plain;charset=utf-8" }));
+    }
 
 
     /*
