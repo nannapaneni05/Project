@@ -146,9 +146,9 @@ function bindListeners () {
         initDrawLine();
     });
 
-    $('.cutWalls').click( function () {
+    $('.selectWalls').click( function () {
         _drawMode.mode = ControlModes.Select;
-        
+
     });
 
     $('.deleteWalls').click( function () {
