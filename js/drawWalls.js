@@ -32,7 +32,7 @@ function initCursorVoxel(cursorSize) {
         color: "silver",
         depthWrite: true
     }));
-    scene.add(_cursorVoxel);
+    //scene.add(_cursorVoxel);
 }
 
 function stopDrawWall () {
@@ -419,9 +419,16 @@ function onDocumentMouseUpDraw() {
             var distancePx = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
 
             //remove allscene
-            scene.remove(_tempScaleCube[0]);
-            scene.remove(_tempScaleCube[1]);
+            $.each(_tempScaleCube , function(i , cube){
+                scene.remove(cube);
+            });
+            // scene.remove(_tempScaleCube[0]);
+            // scene.remove(_tempScaleCube[1]);
             scene.remove(_tempScaleLine);
+            scene.remove(_cursorVoxel);
+    
+
+
 
             _tempScaleCube = [];
             _tempScaleLine = undefined;
