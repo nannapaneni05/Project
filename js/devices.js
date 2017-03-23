@@ -27,11 +27,10 @@ function addDevice (x, y) {
                         alert("duplicate ID");
                     }
                     else {
-                       var point = lastTouchPoint();
-                       if (typeof point == "undefined") {
+                        var point = lastTouchPoint();
+                        if (typeof point == "undefined") {
                             point = getTouchPoint(x, y);
-                       }     
-
+                        }
                         //Create the device, if no duplicates
                         loadDevice(device, point.x, point.y, selectedFloor.id);
                         device.mesh.scale.setLength(10);
@@ -45,12 +44,10 @@ function addDevice (x, y) {
                         saveConfig(true);
                     }
                 }
-                container.style.cursor = "default";
-                _drawMode.mode = '';
+                removeMode();
             },
             Cancel: function () {
                 $('#addDeviceMenu').dialog("close");
-                container.style.cursor = "default";
             }
         }
     });
@@ -126,7 +123,7 @@ function refreshDevices () {
 
                 deviceList.forEach(function (device) {
                     //Place all devices belonging to current floor..
-                    if (device.mesh.floorID === _floors.selectedFloorIndex) {
+                    if (device.mesh.floorID === _floors.selectedFloorIndex || device.mesh.floorID !== _floors.selectedFloorIndex) {
                         //HTML Elements for text container
                         var textContainer = createElement('tr', 'textContainer');
                         var nameText = createElement('td', "deviceAlphaText");

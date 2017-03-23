@@ -110,6 +110,10 @@
     background-image: url("../images/cut.png");
 }
 
+.selectWalls {
+    background-image: url("../images/select.png");
+}
+
 .addDevice {
     background-image: url("../images/add.png");
 }
@@ -128,6 +132,10 @@
 
 .zoomSelect {
     background-image: url("../images/zoom.png");
+}
+
+.zoomOutSelect {
+    background-image: url("../images/zoomOut.png");
 }
 
 .ui-icon {

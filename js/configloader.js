@@ -74,7 +74,7 @@ function loadFloor(url, floorData, imageWidth, imageHeight, callback) {
         floorMesh.position.y = (floorData.building_offset_y || 0) - centerYu + originYPx;
         floorMesh.position.z = (floorData.building_offset_z || 0) + floorData.altitude;
 
-        var emptyGirdData ={
+        var emptyGirdData = {
             'polys': [],
             'devices': [],
             'plane': plane,
@@ -183,14 +183,12 @@ function loadConfig(file, newFile) {
             });
         }, function () {
             // Load devices.
-            //debugger;
             if (newFile || file == null) {
                 console.log(config);
             } else {
                 if ((typeof config.devices === "undefined" || !Array.isArray(config.devices) ) && 1 && config.floors[0]) {
                     config.devices = config.floors[0].devices;
                 }
-
                 if (config.devices) {
                     for (var i = 0; i < config.devices.length; i++) {
                         var data = config.devices[i];
@@ -205,14 +203,9 @@ function loadConfig(file, newFile) {
                         var floor = _floors.floorData.find(function (element) {
                             return element.id == data.floorID
                         });
-                        // debugger;
-                        // if(config.plane)
                         loadDevice(device, data.x * floor.scale, data.y * floor.scale, data.floorID);
-                        //saveConfig(true);
-                    
                     }
                 }
-      
                 if (_floors.floorData.length > 0) {
                     _floors.selectFloor(0);
                     saveConfig(true);
@@ -220,8 +213,7 @@ function loadConfig(file, newFile) {
                     loadDefaultFloor();
                 }
 
-                //debugger;
-                if(typeof config.floors[0] !== "undefined" && typeof config.floors[0].walls !== "undefined"){
+                if (config.floors[0] && typeof config.floors[0].walls !== "undefined") {
                     loadWalls(config.floors[0].walls);
                 }
             }
@@ -288,9 +280,9 @@ function saveConfig(newConfigFlag) {
         };
 
         // Save polys, also known as "walls".
-        
         if (1 || typeof entry.savedAreas == "undefined") {
             var walls = new Array();
+
             if (typeof entry.gridData !== "undefined" && typeof entry.gridData.polys !== "undefined") {
                 entry.gridData.polys.forEach(function (poly) {
                     var points = new Array();
@@ -396,7 +388,6 @@ function saveConfig(newConfigFlag) {
 }
 
 function loadDevice(device, x, y, floorID) {
-    
     if (typeof lastTouchPoint !== "function") {
         return false;
     }
@@ -415,8 +406,6 @@ function loadDevice(device, x, y, floorID) {
         geometry = new THREE.CubeGeometry(2, 2, 2);
 
     var deviceMesh = new THREE.Mesh(geometry, material);
-
-    
 
     deviceMesh.position.x = typeof point == "undefined" ? x : point.x;
     deviceMesh.position.y = typeof point == "undefined" ? y : point.y;
@@ -445,8 +434,6 @@ function loadDevice(device, x, y, floorID) {
     deviceOutline.position.copy(deviceMesh.position);
     deviceOutline.rotation.copy(deviceMesh.rotation);
     deviceMesh.deviceOutline = deviceOutline;
-
-    //_floors.floorData[0].gridData.devices.push(device);
 }
 
 function Floors() {
@@ -585,7 +572,6 @@ function Floors() {
     onSelectedFloorChanged.initCustomEvent("onSelectedFloorChanged", false, false, { "index": this._selectedFloorIndex });
 
     this.clear = function () {
-        
         this.floorData.forEach(function (floor) {
             removeWall(floor);
             scene.remove(floor.mesh);
