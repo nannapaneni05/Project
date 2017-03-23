@@ -48,6 +48,29 @@ function stopDrawWall() {
 }
 
 
+function removeWall(floor){
+    if(floor.gridData.polys.length < 1)return false;
+    $.each(floor.gridData.polys , function(i, poly){
+        scene.remove(poly.line);
+        $.each(poly.cubes , function(j , cube){
+            scene.remove(cube);
+        })
+    });
+
+    floor.gridData.polys=[];
+
+    $.each(_tempCubes , function(i , cube){
+        scene.remove(cube);
+    });
+
+    scene.remove(_tempLine);
+    scene.remove(_cursorVoxel);
+
+    _tempCubes = [];
+    _tempLine=undefined;
+
+}
+
 _tempScaleCube = [],selectDrawBox = false;
 function onDocumentMouseDownDraw(event){
     event.preventDefault();
@@ -301,6 +324,7 @@ function redrawLine() {
         var dist = Math.sqrt( Math.pow(( endPoint.x/floorScale - firstPoint.x/floorScale), 2) + Math.pow((endPoint.y/floorScale-firstPoint.y/floorScale), 2) );
         console.log(distO , dist);
         
+        showWallInfo(endPoint);
     }
     
     if (_tempCubes.length > 0)
@@ -311,6 +335,10 @@ function redrawLine() {
     _tempLine.name = "tempLine_"+((new Date).getMilliseconds());
     scene.add(_tempLine);
     // console.log("name :"+_tempLine.name);
+}
+
+function showWallInfo(){
+    
 }
 
 

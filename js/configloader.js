@@ -212,19 +212,20 @@ function loadConfig(file, newFile) {
                     
                     }
                 }
+      
+                if (_floors.floorData.length > 0) {
+                    _floors.selectFloor(0);
+                    saveConfig(true);
+                } else {  // If no floors found in the config, load the default floor.
+                    loadDefaultFloor();
+                }
+
+                //debugger;
+                if(typeof config.floors[0] !== "undefined" && typeof config.floors[0].walls !== "undefined"){
+                    loadWalls(config.floors[0].walls);
+                }
             }
 
-            if (_floors.floorData.length > 0) {
-                _floors.selectFloor(0);
-                saveConfig(true);
-            } else {  // If no floors found in the config, load the default floor.
-                loadDefaultFloor();
-            }
-
-            //debugger;
-            if(typeof config.floors[0].walls !== "undefined"){
-                loadWalls(config.floors[0].walls);
-            }
 
             if (typeof config.txIcons !== "undefined") {
                 config.txIcons.forEach(function (txIcon) {
@@ -584,7 +585,9 @@ function Floors() {
     onSelectedFloorChanged.initCustomEvent("onSelectedFloorChanged", false, false, { "index": this._selectedFloorIndex });
 
     this.clear = function () {
+        
         this.floorData.forEach(function (floor) {
+            removeWall(floor);
             scene.remove(floor.mesh);
         });
         this.floorData.length = 0;
