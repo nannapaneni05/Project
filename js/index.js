@@ -192,6 +192,10 @@ function bindListeners () {
         removeSelectedPoly();
     });
 
+    $('.cutWalls').click( function () {
+        cutSelectedWall();
+    });
+
     $('.device').click(function () {
         $('#deviceMenu')[0].removeAttribute('hidden');
         refreshDevices();
