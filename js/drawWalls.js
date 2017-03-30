@@ -14,6 +14,7 @@ var ControlModes = {
     MoveDevice: 'moveDevice',
     EditDevice: 'editDevice',
     DrawPoly: 'drawPoly',
+    DrawContinuePoly: 'DrawContinuePoly',
     Select: 'select'
 };
 var _tempScaleCube = [], selectDrawBox = false;
@@ -36,6 +37,11 @@ function initCursorVoxel(cursorSize) {
 }
 
 function stopDrawWall () {
+    if( _drawMode.mode == ControlModes.DrawContinuePoly){
+        _drawMode.selectedObject = undefined;
+        redrawLine();
+    }
+    
     $.each(_tempCubes , function(i , cube){
         scene.remove(cube);
     });
@@ -159,6 +165,25 @@ function onDocumentMouseDownDraw (event) {
                 drawModeRun = true;
                 break;
 
+            case ControlModes.DrawContinuePoly:
+                var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
+                _drawMode.selectedObject = intersects[0];
+                //debugger;
+                var voxel = createVoxelAt(_drawMode.selectedObject.point, CubeColors.properties[_currentPen].hex);
+                scene.add(voxel);
+                _tempCubes.push(voxel);
+                commitPoly();
+
+                // if (drawModeRun == true) {
+                //     drawModeRun = false;
+                //     redrawLine();
+                //     commitPoly();
+
+                //     return false;
+                // }
+                // drawModeRun = true;
+                break;
+   
             case ControlModes.Select:
                 if (selectDrawBox) {
                     removeSelectWall();
@@ -347,7 +372,7 @@ function redrawLine () {
 
         endPoint = snapXYZ(x, y, z, _cubeSize);
         var wallname = _tempLine.name;
-        if(drawModeRun){
+        if(drawModeRun || _drawMode.mode == ControlModes.DrawContinuePoly){
             wallname = "_temp";
         }
 
@@ -357,7 +382,7 @@ function redrawLine () {
 }
 
 function showWallInfo (endPoint , wallname ,dist) {
-    console.log("showWallInfo" ,endPoint);
+    // console.log("showWallInfo" ,endPoint);
     var vector = new THREE.Vector3();
     var widthHalf = 0.5 * renderer.context.canvas.width;
     var heightHalf = 0.5 * renderer.context.canvas.height;
@@ -421,8 +446,10 @@ function commitPoly () {
 
     _floors.floorData[_floors.selectedFloorIndex].gridData.polys.push(poly);
     saveConfig(true);
-    _tempCubes = [];
-    _tempLine=undefined;
+    if (_drawMode.mode !== ControlModes.DrawContinuePoly ){
+        _tempCubes = [];
+        _tempLine=undefined;
+    }
 }
 
 //initgrid function Cartographer
@@ -469,6 +496,17 @@ function onDocumentMouseMoveDraw (event) {
     var intersects = raycaster.intersectObject(plane, true);
     if (intersects.length > 0) {
         if (_drawMode.mode == ControlModes.DrawPoly) {
+            var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
+            _cursorVoxel.position.x = point.x;
+            _cursorVoxel.position.y = point.y;
+            _cursorVoxel.position.z = point.z;
+            _cursorVoxel.visible = true;
+
+            _drawMode.selectedObject = intersects[0];
+
+            if(_tempCubes.length < 1)return false;
+            redrawLine();
+        }else if (_drawMode.mode == ControlModes.DrawContinuePoly ) {
             var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
             _cursorVoxel.position.x = point.x;
             _cursorVoxel.position.y = point.y;
