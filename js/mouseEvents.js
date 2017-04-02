@@ -91,7 +91,7 @@ function onDocumentKeyDown (e) {
     var keyevent = window.event ? event : e;
     switch (keyevent.keyCode) {
         case 27:
-            if (_drawMode.mode == ControlModes.DrawPoly && _tempLine) {
+            if ((_drawMode.mode == ControlModes.DrawPoly || _drawMode.mode == ControlModes.DrawContinuePoly ) && _tempLine) {
                 scene.remove(_cursorVoxel);
                 stopDrawWall();
                 drawModeRun = false;

@@ -40,13 +40,14 @@ function stopDrawWall () {
     if( _drawMode.mode == ControlModes.DrawContinuePoly){
         _drawMode.selectedObject = undefined;
         redrawLine();
+    }else{
+        $.each(_tempCubes , function(i , cube){
+            scene.remove(cube);
+        });
+        scene.remove(_tempLine);
+        scene.remove(_cursorVoxel);
     }
     
-    $.each(_tempCubes , function(i , cube){
-        scene.remove(cube);
-    });
-    scene.remove(_tempLine);
-    scene.remove(_cursorVoxel);
     _tempCubes = [];
     _tempLine = undefined;
 }
@@ -361,7 +362,7 @@ function redrawLine () {
     _tempLine = new THREE.Line(geometry, material);
     _tempLine.name = "tempLine_"+((new Date).getMilliseconds());
     scene.add(_tempLine);
-
+    
     if (typeof firstPoint !== "undefined") {
         var floorScale = _floors.floorData[_floors.selectedFloorIndex].scale;
         var distO = Math.sqrt( Math.pow(( endPoint.x - firstPoint.x), 2) + Math.pow((endPoint.y-firstPoint.y), 2) );
