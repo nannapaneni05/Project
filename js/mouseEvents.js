@@ -57,13 +57,14 @@ function showLocation () {
 }
 
 function getLocation (device) {
+
     if (device != null) {
         floor = _floors.floorData[_floors.selectedFloorIndex];
         var devPos;
         if (device.mesh === null) {
             devPos = device.position;
         } else {
-            devPos = device.mesh.position;
+            devPos = device.info ||  device.mesh.position;
         }
         var devX = devPos.x / floor.scale,
             devY = devPos.y / floor.scale,
