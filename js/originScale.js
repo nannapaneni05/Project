@@ -34,6 +34,7 @@ function setNewOrigin (intersects ) {
         }
     });
 
+    /*
     var polys =  [].concat(floor.gridData.polys);
     polys.forEach(function (poly, index, list) {
         poly.cubes.forEach(function (cube, index, list) {
@@ -47,6 +48,7 @@ function setNewOrigin (intersects ) {
         redrawLine();
         floor.gridData.polys[index].line = _tempLine;
     });
+    */
     createPlane();
 }
 
