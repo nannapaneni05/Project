@@ -35,6 +35,8 @@ function updateZoom (isZoomOut, scale) {
     controls.dispatchEvent(endEvent);
 }
 
+
+
 function showLocation () {
     var intersects = raycaster.intersectObjects(_devices.visibleDevices, true);
     if (intersects.length > 0) {
@@ -97,9 +99,9 @@ function onDocumentKeyDown (e) {
                 stopDrawWall();
                 drawModeRun = false;
             } else if (_drawMode.mode == ControlModes.Select && _tempSelectLine) {
-                removeSelectWall();
+                removeSelectWallBox();
             } else if (_drawMode.mode == ControlModes.Select) {
-                removeSelectWall();
+                removeSelectWallBox();
                 removeMode();
             } else if (_drawMode.mode == ControlModes.DrawPoly) {
                 scene.remove(_cursorVoxel);
