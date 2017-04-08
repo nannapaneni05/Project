@@ -257,6 +257,7 @@ function bindListeners () {
     });
     container.addEventListener('mousedown', function () {
         onMouseDown(event);
+        //selectWallFunc();
     });
     container.addEventListener('mousemove', function () {
         showLocation();

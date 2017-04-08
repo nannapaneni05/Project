@@ -109,7 +109,6 @@ function cutSelectedWall(){
                 );
 
             if(intersect){
-                console.log(intersect);
                 //remove old line
                 scene.remove(poly.line);
                 
@@ -481,7 +480,7 @@ function commitPoly () {
                 contPoly = poly;
             }
         });
-        console.log(contPoly);
+
     }
 
     saveConfig(true);
@@ -563,20 +562,35 @@ function onDocumentMouseMoveDraw (event) {
 
 
         }else if(mouseDownDraw && typeof singleSelectWall !== "undefined"){
+            _drawMode.selectedObject  = undefined;
             var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
-                
             var touchPoint = singleSelectWall.touchpoint;
             
+            if(_tempCubes.length){
+                $.each(_tempCubes , function( i , cube){
+                    scene.remove(cube);
+                });
+            }
+            _tempCubes = [];
             $.each(singleSelectWall.cubes , function(i ,cube){
-                //var xdiff = cube.position.x - touchPoint.x;
-                // var ydiff = cube.position.y - touchPoint.y;
+                var xdiff = cube.position.x - touchPoint.x;
+                var ydiff = cube.position.y - touchPoint.y;
 
-                // cube.position.x = point.x + xdiff;
-                // cube.position.y = point.y + ydiff;
+                
+                var cubex = point.x + xdiff;
+                var cubey = point.y + ydiff;
+                var voxelpoint = snapPoint(new THREE.Vector3(cubex, cubey, plane.position.z + _cubeSize / 2), _cubeSize);
+                
+                var newCube = createVoxelAt(voxelpoint  , "silver");
+                _tempCubes.push(newCube);
+                scene.add(newCube);
 
-
+                //remove old voxel;
+                scene.remove(cube);
             });
 
+            scene.remove(singleSelectWall.line);
+            redrawLine();
 
 
             return false;
@@ -702,6 +716,7 @@ function onDocumentMouseUpDraw(event) {
         if(intersects.length){
             var voxel = createVoxelAt(intersects[0].point, "red");
             scene.add(voxel);
+            _tempCubes.push(voxel);
         }
         
         if(typeof _tempLine !== "undefined"){
@@ -714,6 +729,26 @@ function onDocumentMouseUpDraw(event) {
         selectPolyCube=undefined;
         commitPoly();
                             
+    }else if (typeof singleSelectWall !== "undefined") {
+        var polys  = _floors.floorData[0].gridData.polys;
+        $.each(polys , function(i , poly){
+            if(poly.polyId == singleSelectWall.polyId ){
+                var index = polys.indexOf(poly);
+                polys.splice(index,1);     
+                return false;
+            }
+        });
+        
+        if(typeof _tempLine !== "undefined"){
+            _tempLine.material.color = new THREE.Color("red");
+        }
+        
+        $.each(_tempCubes,  function( i , cube ){
+            cube.material.color =  new THREE.Color("red");
+        });
+        
+        commitPoly();
+        singleSelectWall = undefined;
     }
     mouseDownDraw=!1;
 
@@ -912,10 +947,10 @@ function selectWallFunc(){
                 }
             });
 
+            var singleWall;
             if(polyline.length){
                 var intersects = raycaster.intersectObjects(polyline, true);
                 if (intersects.length > 0) {
-                    //console.log(intersects);
                     $.each(polys , function(i , poly){
                         if(poly.line.name === intersects[0].object.name){
                             poly.line.material.color = new THREE.Color("silver");
