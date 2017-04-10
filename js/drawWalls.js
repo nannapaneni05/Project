@@ -37,6 +37,10 @@ function initCursorVoxel(cursorSize) {
 }
 
 function stopDrawWall () {
+    if( _tempCubes.length < 2 ){
+        scene.remove(_tempCubes[0]);
+    }
+
     if( _drawMode.mode == ControlModes.DrawContinuePoly){
         _drawMode.selectedObject = undefined;
         redrawLine();
