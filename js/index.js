@@ -112,8 +112,8 @@ function bindListeners () {
     document.onkeydown = onDocumentKeyDown;
 
     $('a.subMenuButton').click(function() {
-        if(  $( this).not( ".selectWalls" ) ) {
-            removeSelectWallBox();
+        if(  $( this).not( ".selectWalls, .deleteWalls , .cutWalls" )   ) {
+            // removeSelectWallBox();
         }   
 
         container.style.cursor = "default";

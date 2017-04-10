@@ -164,6 +164,7 @@ function onDocumentMouseDownDraw (event) {
                     redrawLine();
                     commitPoly();
 
+                    console.log(_floors.floorData[0].gridData.polys.length);
                     return false;
                 }
                 drawModeRun = true;
@@ -192,13 +193,14 @@ function onDocumentMouseDownDraw (event) {
             case ControlModes.Select:
                 selectWallFunc();
                 if(typeof singleSelectWall !==  "undefined"){
+                    removeSelectWallBox();
                     mouseDownDraw=!0;
                     removeSelectWallBox();
                     selectDrawBox = false;
                     
                     return false;
                 }
-
+                
                 if (selectDrawBox) {
                     removeSelectWallBox();
                     selectDrawBox = false;
@@ -572,6 +574,7 @@ function onDocumentMouseMoveDraw (event) {
 
 
         }else if(mouseDownDraw && typeof singleSelectWall !== "undefined"){
+          
             _drawMode.selectedObject  = undefined;
             var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
             var touchPoint = singleSelectWall.touchpoint;
@@ -740,10 +743,16 @@ function onDocumentMouseUpDraw(event) {
         commitPoly();
                             
     }else if (typeof singleSelectWall !== "undefined") {
-        var polys  = _floors.floorData[0].gridData.polys;
+        if(typeof _tempLine == "undefined"){
+            singleSelectWall = undefined;
+        
+            return false;
+        }
+
+        var index,polys  = _floors.floorData[0].gridData.polys;
         $.each(polys , function(i , poly){
             if(poly.polyId == singleSelectWall.polyId ){
-                var index = polys.indexOf(poly);
+                index = polys.indexOf(poly);
                 polys.splice(index,1);     
                 return false;
             }
@@ -759,6 +768,7 @@ function onDocumentMouseUpDraw(event) {
         
         commitPoly();
         singleSelectWall = undefined;
+   
     }
     mouseDownDraw=!1;
 
@@ -947,12 +957,12 @@ function selectWallFunc(){
             var polys  = _floors.floorData[0].gridData.polys;
             var polycube = [] ,  polyline = [];
             $.each(polys , function(i , poly){
-                //  poly.material.color = new THREE.Color("red");
+                poly.line.material.color = new THREE.Color("red");
                 polyline.push( poly.line );
                 if(poly.cubes.length){
                     $.each(poly.cubes , function(j , cube){
                         polycube.push(cube);
-                        //cube.material.color = new THREE.Color("red");
+                        cube.material.color = new THREE.Color("red");
                     });
                 }
             });
@@ -977,7 +987,6 @@ function selectWallFunc(){
             //debugger;
 
             
-
             if(polycube.length ){
                 var intersects = raycaster.intersectObjects(polycube, true);
                 if (intersects.length > 0) {
