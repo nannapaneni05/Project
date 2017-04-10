@@ -173,6 +173,7 @@ function onDocumentMouseDownDraw (event) {
                 scene.add(voxel);
                 _tempCubes.push(voxel);
                 commitPoly();
+                redrawLine();
 
                 // if (drawModeRun == true) {
                 //     drawModeRun = false;
@@ -460,13 +461,18 @@ function showWallInfo (endPoint , wallname ,dist) {
 
 var continueLinePoly;
 function commitPoly () {
+    if( _tempCubes.length < 2 ){
+        return false;
+    }
+        
     if(typeof continueLinePoly == "undefined"){
         var random = Math.floor(Math.random() * 1000) + 1  ;
         var poly = {
             polyId: _tempCubes[0].id || random,
             cubes: _tempCubes,
             line:  _tempLine,
-            color: _tempCubes[0].pen
+            color: _tempCubes[0].pen,
+            lineId:_tempLine.id
         };
         _floors.floorData[_floors.selectedFloorIndex].gridData.polys.push(poly);
 
