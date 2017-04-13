@@ -735,7 +735,7 @@ function onDocumentMouseMoveDraw (event) {
 
             if(_tempCubes.length < 1)return false;
             redrawLine();
-        } else if(_drawMode.mode == ControlModes.Select &&  _tempSelectCubes.length) {
+        } else if(_drawMode.mode == ControlModes.Select &&   _tempSelectCubes.length) {
             if(selectDrawBox)return false;
             if( _tempSelectLine !== "undefined"){
                 scene.remove(_tempSelectLine);
@@ -797,19 +797,7 @@ function onDocumentMouseUpDraw(event) {
     var intersects = raycaster.intersectObject(plane, true);
     
 
-    if (_drawMode.mode == ControlModes.Select) {
-        _drawMode.selectedObject = intersects[0];
-        var voxel = createVoxelAt(_drawMode.selectedObject.point, "silver");
-        scene.add(voxel);
-        _tempSelectCubes.push(voxel);
-
-        if (_tempSelectCubes.length > 1) {
-            scene.remove(_tempSelectLine);
-            drawSelectWall(intersects[0]);
-            selectDrawBox = true;
-            showSelectedPoly();
-        }
-    }else if (_drawMode.mode == ControlModes.SetScale) {
+    if (_drawMode.mode == ControlModes.SetScale) {
         if (_tempScaleCube.length && typeof _tempScaleLine !== "undefined") {
             var distanceX = Math.abs(_tempScaleCube[0].position.x - _tempScaleCube[1].position.x);
             var distanceY = Math.abs(_tempScaleCube[0].position.y - _tempScaleCube[1].position.y);
@@ -888,6 +876,33 @@ function onDocumentMouseUpDraw(event) {
         commitPoly(index);
         singleSelectWall = undefined;
    
+    }else if (_drawMode.mode == ControlModes.Select) {
+
+        _drawMode.selectedObject = intersects[0];
+        var voxel = createVoxelAt(_drawMode.selectedObject.point, "silver");
+        scene.add(voxel);
+        _tempSelectCubes.push(voxel);
+
+            
+        if (_tempSelectCubes.length > 1) {
+            var xdiff = _tempSelectCubes[0].position.x - intersects[0].point.x;
+            var ydiff = _tempSelectCubes[0].position.y - intersects[0].point.y;
+            scene.remove(_tempSelectLine);
+            drawSelectWall(intersects[0]);
+            selectDrawBox = true;
+            if( (xdiff > 10 || xdiff < -10) && (ydiff > 10 || ydiff < -10) ){
+                showSelectedPoly();
+                
+            }
+
+            $.each(_tempSelectCubes , function( i,  cube){
+                scene.remove(cube);
+            });
+            _tempSelectCubes = [];
+
+        }
+        scene.remove(_tempSelectLine);
+            
     }
     mouseDownDraw=!1;
 
