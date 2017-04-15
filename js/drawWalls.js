@@ -53,6 +53,7 @@ function stopDrawWall () {
     }
     
     _tempCubes = [];
+    continueLinePoly = undefined;
     _tempLine = undefined;
 }
 
@@ -164,7 +165,6 @@ function onDocumentMouseDownDraw (event) {
                     redrawLine();
                     commitPoly();
 
-                    console.log(_floors.floorData[0].gridData.polys.length);
                     return false;
                 }
                 drawModeRun = true;
@@ -576,6 +576,7 @@ function commitPoly () {
         lineId:_tempLine.id
     };
     
+    //console.log(continueLinePoly);
     if(typeof continueLinePoly == "undefined"){
         if(typeof arguments[0] == "undefined"){
             _floors.floorData[_floors.selectedFloorIndex].gridData.polys.push(poly);
@@ -860,7 +861,7 @@ function onDocumentMouseUpDraw(event) {
         $.each(polys , function(i , poly){
             if(poly.polyId == singleSelectWall.polyId ){
                 index = polys.indexOf(poly);
-                polys.splice(index,1);     
+                //polys.splice(index,1);     
                 return false;
             }
         });
