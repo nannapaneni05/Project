@@ -156,6 +156,10 @@ function onDocumentMouseDownDraw (event) {
                 var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
                 _drawMode.selectedObject = intersects[0];
                 //debugger;
+                // var xdiff = _tempCubes[0].position.x - intersects[0].point.x;
+                // var ydiff = _tempCubes[0].position.y - intersects[0].point.y;
+                // if( (xdiff > 10 || xdiff < -10) && (ydiff > 10 || ydiff < -10) ){}
+                
                 var voxel = createVoxelAt(_drawMode.selectedObject.point, CubeColors.properties[_currentPen].hex);
                 scene.add(voxel);
                 _tempCubes.push(voxel);
@@ -657,9 +661,13 @@ function onDocumentMouseMoveDraw (event) {
             _tempCubes=[];
             $.each(singleSelectWall.cubes , function(i ,cube){
                 if(cube.name == selectPolyCube.name ){
-                    scene.remove(cube); 
-                    var voxel = createVoxelAt(point , "red");
-                    _tempCubes.push(voxel);
+                    cube.position.copy(point);
+                    // scene.remove(cube); 
+                    // debugger;
+                    //var voxel = createVoxelAt(point , "red");
+                    // scene.add(voxel);
+                    //_tempCubes.push(voxel);
+                    _tempCubes.push(cube);
                 }else{
                     _tempCubes.push(cube);
                 }
@@ -835,8 +843,8 @@ function onDocumentMouseUpDraw(event) {
     }else if (typeof selectPolyCube !== "undefined") {
         //debugger;
         if(intersects.length){
-            var voxel = createVoxelAt(intersects[0].point, "red");
-            scene.add(voxel);
+            // var voxel = createVoxelAt(intersects[0].point, "red");
+            // scene.add(voxel);
             //_tempCubes.push(voxel);
         }
         
@@ -886,11 +894,11 @@ function onDocumentMouseUpDraw(event) {
 
             
         if (_tempSelectCubes.length > 1) {
-            var xdiff = _tempSelectCubes[0].position.x - intersects[0].point.x;
-            var ydiff = _tempSelectCubes[0].position.y - intersects[0].point.y;
             scene.remove(_tempSelectLine);
             drawSelectWall(intersects[0]);
             selectDrawBox = true;
+            var xdiff = _tempSelectCubes[0].position.x - intersects[0].point.x;
+            var ydiff = _tempSelectCubes[0].position.y - intersects[0].point.y;
             if( (xdiff > 10 || xdiff < -10) && (ydiff > 10 || ydiff < -10) ){
                 showSelectedPoly();
                 
