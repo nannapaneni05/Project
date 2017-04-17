@@ -488,7 +488,6 @@ function redrawLine () {
         _tempLine = new THREE.Line(geometry, material);
         _tempLine.name = "tempLine_"+((new Date).getMilliseconds());
         scene.add(_tempLine);
-        
     }
     
     if (typeof firstPoint !== "undefined") {
@@ -595,7 +594,7 @@ function commitPoly () {
     }else{
         var  contPoly, polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
         $.each(polys , function(i ,  eachpoly){
-            if(poly.polyId ==  continueLinePoly.polyId  ){
+            if(eachpoly.polyId ==  continueLinePoly.polyId  ){
                 var index = polys.indexOf(eachpoly);
                 polys[index] = poly;
                 contPoly = eachpoly;
