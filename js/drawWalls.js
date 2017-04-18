@@ -51,6 +51,8 @@ function stopDrawWall () {
         scene.remove(_tempLine);
         scene.remove(_cursorVoxel);
     }
+
+    
     
     _tempCubes = [];
     continueLinePoly = undefined;
@@ -67,6 +69,8 @@ function removeSelectWallBox () {
 
     _tempSelectCubes = [];
     _tempSelectLine = undefined;
+
+    
 }
 
 function removeWall (floor) {
@@ -342,6 +346,7 @@ function removeSelectedPoly () {
 
 var selectedPolys=[];
 function showSelectedPoly () {
+    selectedPolys=[];
     /* single select wall remove */
     var remPolys=[] , polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
     if(typeof singleSelectWall !== "undefined"){
@@ -804,7 +809,6 @@ function onDocumentMouseUpDraw(event) {
     raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
     var intersects = raycaster.intersectObject(plane, true);
     
-
     if (_drawMode.mode == ControlModes.SetScale) {
         if (_tempScaleCube.length && typeof _tempScaleLine !== "undefined") {
             var distanceX = Math.abs(_tempScaleCube[0].position.x - _tempScaleCube[1].position.x);
@@ -840,7 +844,6 @@ function onDocumentMouseUpDraw(event) {
         _selectedDragDevice = undefined;
         saveConfig(true);
     }else if (typeof selectPolyCube !== "undefined") {
-        //debugger;
         if(intersects.length){
             // var voxel = createVoxelAt(intersects[0].point, "red");
             // scene.add(voxel);
@@ -859,8 +862,9 @@ function onDocumentMouseUpDraw(event) {
 
     }else if (typeof singleSelectWall !== "undefined") {
         if(typeof _tempLine == "undefined"){
+            selectedPolys = [];
+            selectedPolys.push(singleSelectWall);
             singleSelectWall = undefined;
-        
             return false;
         }
 
