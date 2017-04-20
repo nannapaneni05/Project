@@ -212,7 +212,8 @@ function bindListeners () {
     });
 
     $('.cutWalls').click( function () {
-        cutSelectedWall();
+        // cutSelectedWall();
+        _drawMode.mode = ControlModes.CutPoly;
     });
 
     $('.device').click(function () {
