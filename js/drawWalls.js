@@ -114,6 +114,7 @@ function cutSelectedWall(topoly  , cutPoint ){
                 _tempCubes.push(cube);
                 
                 if(j === (poly.cubes.length - 1) ){
+                    _drawMode.selectedObject = undefined;
                     redrawLine();
                     commitPoly();
                     var index = polys.indexOf(poly);
@@ -129,10 +130,13 @@ function cutSelectedWall(topoly  , cutPoint ){
                     var voxel =createVoxelAt( cutPoint , "red")
                     scene.add(voxel);
                     _tempCubes.push(voxel);
-
+                    _drawMode.selectedObject = undefined;
                     redrawLine();
                     commitPoly();
                     _tempCubes = [];
+
+                    var voxel =createVoxelAt( cutPoint , "red")
+                    scene.add(voxel);
                     _tempCubes.push(voxel);
                 }
                 //if(cube.position.x < cutPoint.x &&  nextpoint.x && ){}
