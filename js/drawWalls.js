@@ -506,7 +506,7 @@ function selectPoly (id) {
 function findPoly(id) {
     var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
     for (var i = 0; i < polys.length; i++) {
-        if (polys[i].polyId === id) {
+        if (polys[i].line.id === id) {
             return polys[i];
         }
     }
@@ -531,7 +531,7 @@ function moveLine(polyline){
 
     polyline.geometry = geometry;
     polyline.material =material;
-
+    _tempLine = polyline;
 }
 
 function redrawLine () {
@@ -785,47 +785,13 @@ function onDocumentMouseMoveDraw (event) {
             var touchPoint = singleSelectWall.touchpoint;
             
 
-            
-            /*
-            $.each(singleSelectWall.cubes , function(i ,cube){
-                var xdiff = cube.position.x - touchPoint.x;
-                var ydiff = cube.position.y - touchPoint.y;
-
-                
-                var cubex = point.x + xdiff;
-                var cubey = point.y + ydiff;
-                var voxelpoint = snapPoint(new THREE.Vector3(cubex, cubey, plane.position.z + _cubeSize / 2), _cubeSize);
-                
-                var newCube = createVoxelAt(voxelpoint  , "silver");
-                _tempCubes.push(newCube);
-                scene.add(newCube);
-
-                //remove old voxel;
-                scene.remove(cube);
-            });
-            scene.remove(singleSelectWall.line);
-            redrawLine();
-            */
-
-            var polys  = _floors.floorData[0].gridData.polys;
-            $.each(selectedPolys , function(i , poly){
-                //scene.remove(poly.line);
-                /*
-                if(tmpLineArr.length){
-                    $.each(tmpLineArr , function( i , tmppoly ){
-                        scene.remove(tmppoly._tempLine);
-                    });
-                }
-
-                */
-                if(_tempCubes.length){
-                    $.each(_tempCubes , function( i , cube){
-                        scene.remove(cube);
-                    });
-                }
-
-                _tempCubes = [];
-                $.each(poly.cubes , function(i ,cube){
+            if(selectedPolys.length < 1){
+                 $.each( _tempCubes  ,  function( i , cube){
+                    scene.remove(cube);
+                 });
+                 
+                 _tempCubes=[];
+                 $.each(singleSelectWall.cubes , function(i ,cube){
                     var xdiff = cube.position.x - touchPoint.x;
                     var ydiff = cube.position.y - touchPoint.y;
 
@@ -841,29 +807,50 @@ function onDocumentMouseMoveDraw (event) {
                     //remove old voxel;
                     scene.remove(cube);
                 });
-                moveLine(poly.line);
-                //redrawLine();
-                var index = polys.indexOf(poly);
-                tmpLineArr[index] = {
-                    'poly':poly,
-                    '_tempLine': _tempLine, //$.extend({} , _tempLine) , 
-                    '_tempCubes': _tempCubes, //$.extend([] , _tempCubes)
-                };                
-                /*
-                console.log(_tempCubes);
-                // commitPoly(index);
-                // if(typeof tmpLineArr[index] !== "undefined"){
-                //     //debugger;
-                //     scene.remove(tmpLineArr[index]._tempLine);
-                //     $.each(tmpLineArr[index]._tempLine , function( i ,  cube){
-                //         scene.remove(cube);
-                //     });
-                // }
+                scene.remove(singleSelectWall.line);
+                redrawLine();
+                
+            }else{
 
-                */
-                //_tempCubes = [];
-                //_tempLine=undefined;
-            });
+                var polys  = _floors.floorData[0].gridData.polys;
+                $.each(selectedPolys , function(i , poly){
+                    var index = polys.indexOf(poly);
+
+                    //scene.remove(poly.line);
+                    if(tmpLineArr.length && typeof tmpLineArr[index] !== "undefined"){
+                        $.each(tmpLineArr[index]._tempCubes , function( i , cube ){
+                            scene.remove(cube);
+                        });
+                    }
+
+                    _tempCubes = [];
+                    $.each(poly.cubes , function(i ,cube){
+                        var xdiff = cube.position.x - touchPoint.x;
+                        var ydiff = cube.position.y - touchPoint.y;
+
+                        
+                        var cubex = point.x + xdiff;
+                        var cubey = point.y + ydiff;
+                        var voxelpoint = snapPoint(new THREE.Vector3(cubex, cubey, plane.position.z + _cubeSize / 2), _cubeSize);
+                        
+                        scene.remove(cube);
+
+                        var newCube = createVoxelAt(voxelpoint  , "silver");
+                        _tempCubes.push(newCube);
+                        scene.add(newCube);
+
+                        //remove old voxel;
+                    });
+                    moveLine(poly.line); 
+                    tmpLineArr[index] = {
+                        'poly':poly,
+                        '_tempLine': _tempLine, //$.extend({} , _tempLine) , 
+                        '_tempCubes': _tempCubes, //$.extend([] , _tempCubes)
+                    };                
+                    _tempCubes = [];
+                    _tempLine=undefined;
+                });
+            }
             
             return false;
         }else if (_drawMode.mode == ControlModes.DrawPoly) {
@@ -942,7 +929,7 @@ function onDocumentMouseMoveDraw (event) {
 
 function onDocumentMouseUpDraw(event) {
     event.preventDefault();
-
+// debugger;
     _drawMode.mouseX = ((event.clientX - container.offsetLeft) / renderer.domElement.clientWidth) * 2 - 1;
     _drawMode.mouseY = -((event.clientY - container.offsetTop) / renderer.domElement.clientHeight) * 2 + 1;
 
@@ -980,6 +967,17 @@ function onDocumentMouseUpDraw(event) {
                 setNewScale(distance, distancePx);
             }
         }
+    } else if (tmpLineArr.length > 0) {
+        var index,polys  = _floors.floorData[0].gridData.polys;
+        $.each(tmpLineArr , function(i , line){
+            var poly = findPoly(line._tempLine.id);
+            index = polys.indexOf(poly);
+            polys[index].cubes =  line._tempCubes;
+            polys[index].line =  line._tempLine;
+            //line._tempLine
+        });
+        saveConfig(true);
+
     } else if (typeof _selectedDragDevice !== "undefined") {
         _selectedDragDevice = undefined;
         saveConfig(true);
