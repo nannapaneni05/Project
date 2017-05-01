@@ -580,8 +580,9 @@ function redrawLine () {
         //console.log(_tempLine.name , scene.getO);
     }
     
+
     if (typeof firstPoint !== "undefined") {
-        return false;
+        //return false;
         var floorScale = _floors.floorData[_floors.selectedFloorIndex].scale;
         var distO = Math.sqrt( Math.pow(( endPoint.x - firstPoint.x), 2) + Math.pow((endPoint.y-firstPoint.y), 2) );
         var dist = Math.sqrt( Math.pow(( endPoint.x/floorScale - firstPoint.x/floorScale), 2) + Math.pow((endPoint.y/floorScale-firstPoint.y/floorScale), 2) );
@@ -594,13 +595,31 @@ function redrawLine () {
         if(drawModeRun || _drawMode.mode == ControlModes.DrawContinuePoly){
             wallname = "_temp";
         }
-
-        //showWallInfo(endPoint , wallname ,dist);
+        if (typeof _drawMode.selectedObject  !== "undefined"){
+            showWallInfo(endPoint , wallname ,dist);
+        }else{
+            setTimeout(function(){
+                showWallInfo(endPoint , wallname ,dist);
+                
+            } , 1100);
+        }
     }
 
 }
 
-function showWallInfo (endPoint , wallname ,dist) {
+function showWallInfo2(endPoint , wallname ,dist){
+    var material = new THREE.MeshPhongMaterial({
+        color: 0xdddddd
+    });
+    var textGeom = new THREE.TextGeometry( 'Hello World!', {
+        font: 'your font name' // Must be lowercase!
+    });
+    var textMesh = new THREE.Mesh( textGeom, material );
+    scene.add( textMesh );
+
+}
+
+function showWallInfo(endPoint , wallname ,dist) {
     // console.log("showWallInfo" ,endPoint);
     var vector = new THREE.Vector3();
     var widthHalf = 0.5 * renderer.context.canvas.width;
@@ -746,8 +765,7 @@ function onDocumentMouseMoveDraw (event) {
     var intersects = raycaster.intersectObject(plane, true);
     if (intersects.length > 0) {
         
-
-        if(mouseDownDraw && typeof selectPolyCube !== "undefined"){
+        if(selectedPolys.length < 1 && mouseDownDraw && typeof selectPolyCube !== "undefined"){
             var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
             _tempCubes=[];
             $.each(singleSelectWall.cubes , function(i ,cube){
@@ -779,17 +797,16 @@ function onDocumentMouseMoveDraw (event) {
 
 
         }else if(mouseDownDraw && typeof singleSelectWall !== "undefined"){
-          
             _drawMode.selectedObject  = undefined;
             var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
             var touchPoint = singleSelectWall.touchpoint;
             
-
-            if(selectedPolys.length < 1){
+            // tmpLineArr=[];
+            if(selectedPolys.length < 1 || typeof selectPolyCube !== "undefined" ){
                  $.each( _tempCubes  ,  function( i , cube){
                     scene.remove(cube);
                  });
-                 
+
                  _tempCubes=[];
                  $.each(singleSelectWall.cubes , function(i ,cube){
                     var xdiff = cube.position.x - touchPoint.x;
@@ -970,12 +987,15 @@ function onDocumentMouseUpDraw(event) {
     } else if (tmpLineArr.length > 0) {
         var index,polys  = _floors.floorData[0].gridData.polys;
         $.each(tmpLineArr , function(i , line){
-            var poly = findPoly(line._tempLine.id);
-            index = polys.indexOf(poly);
-            polys[index].cubes =  line._tempCubes;
-            polys[index].line =  line._tempLine;
+            if(typeof line !== "undefined"){
+                var poly = findPoly(line._tempLine.id);
+                index = polys.indexOf(poly);
+                polys[index].cubes =  line._tempCubes;
+                polys[index].line =  line._tempLine;
+            }
             //line._tempLine
         });
+        tmpLineArr=[];
         saveConfig(true);
 
     } else if (typeof _selectedDragDevice !== "undefined") {
