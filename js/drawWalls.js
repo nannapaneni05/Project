@@ -600,14 +600,40 @@ function redrawLine () {
         }else{
             setTimeout(function(){
                 showWallInfo(endPoint , wallname ,dist);
-                
-            } , 1100);
+            } , 1000);
         }
     }
 
 }
 
-function showWallInfo2(endPoint , wallname ,dist){
+function showWallInfo(endPoint , wallname ,dist){
+    var fontLoader = new THREE.FontLoader();
+    var textname="wallinfo_"+wallname;
+    var textObj = scene.getObjectByName(textname);
+    if(typeof textObj == "object"){
+        //text.position.set(endPoint.x ,endPoint.y, endPoint.z);
+        scene.remove(textObj);
+    }        
+
+    fontLoader.load("https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_bold.typeface.json",function(tex){ 
+        var  textGeo = new THREE.TextGeometry( Math.trunc(dist) , {
+                size: 10,
+                height: 5,
+                curveSegments: 6,
+                font: tex,
+        });
+        var  color = new THREE.Color();
+        color.setRGB(255, 250, 250);
+        var  textMaterial = new THREE.MeshBasicMaterial({ color: color });
+        var  text = new THREE.Mesh(textGeo , textMaterial);
+        text.position.set(endPoint.x ,endPoint.y, endPoint.z);
+        text.name = textname;
+        //debugger;
+        scene.add(text);
+    });
+    
+
+    /*
     var material = new THREE.MeshPhongMaterial({
         color: 0xdddddd
     });
@@ -616,10 +642,10 @@ function showWallInfo2(endPoint , wallname ,dist){
     });
     var textMesh = new THREE.Mesh( textGeom, material );
     scene.add( textMesh );
-
+    */
 }
 
-function showWallInfo(endPoint , wallname ,dist) {
+function showWallInfo2(endPoint , wallname ,dist) {
     // console.log("showWallInfo" ,endPoint);
     var vector = new THREE.Vector3();
     var widthHalf = 0.5 * renderer.context.canvas.width;
