@@ -582,7 +582,7 @@ function redrawLine () {
     
 
     if (typeof firstPoint !== "undefined") {
-        //return false;
+        // return false;
         var floorScale = _floors.floorData[_floors.selectedFloorIndex].scale;
         var distO = Math.sqrt( Math.pow(( endPoint.x - firstPoint.x), 2) + Math.pow((endPoint.y-firstPoint.y), 2) );
         var dist = Math.sqrt( Math.pow(( endPoint.x/floorScale - firstPoint.x/floorScale), 2) + Math.pow((endPoint.y/floorScale-firstPoint.y/floorScale), 2) );
@@ -1001,23 +1001,6 @@ function onDocumentMouseUpDraw(event) {
     } else if (typeof _selectedDragDevice !== "undefined") {
         _selectedDragDevice = undefined;
         saveConfig(true);
-    }else if (typeof selectPolyCube !== "undefined") {
-        if(intersects.length){
-            // var voxel = createVoxelAt(intersects[0].point, "red");
-            // scene.add(voxel);
-            //_tempCubes.push(voxel);
-        }
-        
-        if(typeof _tempLine !== "undefined"){
-            _tempLine.material.color = new THREE.Color("red");
-        }
-
-        $.each(_tempCubes,  function( i , cube ){
-            cube.material.color =  new THREE.Color("red");
-        });
-        commitPoly(selectPolyCubeIndex);
-        selectPolyCube=undefined;
-
     }else if (typeof singleSelectWall !== "undefined") {
         if(typeof _tempLine == "undefined"){
             selectedPolys = [];
@@ -1045,7 +1028,25 @@ function onDocumentMouseUpDraw(event) {
         
         commitPoly(index);
         singleSelectWall = undefined;
-   
+        }else if (typeof selectPolyCube !== "undefined") {
+        if(intersects.length){
+            // var voxel = createVoxelAt(intersects[0].point, "red");
+            // scene.add(voxel);
+            //_tempCubes.push(voxel);
+        }
+        
+        if(typeof _tempLine !== "undefined"){
+            _tempLine.material.color = new THREE.Color("red");
+        }
+
+        $.each(_tempCubes,  function( i , cube ){
+            cube.material.color =  new THREE.Color("red");
+        });
+        commitPoly(selectPolyCubeIndex);
+        selectPolyCube=undefined;
+
+
+
     }else if (_drawMode.mode == ControlModes.Select) {
 
         _drawMode.selectedObject = intersects[0];
