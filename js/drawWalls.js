@@ -16,7 +16,8 @@ var ControlModes = {
     DrawPoly: 'drawPoly',
     CutPoly: 'cutPoly',
     DrawContinuePoly: 'DrawContinuePoly',
-    Select: 'select'
+    'Select': 'select',
+    PanSelect: 'panSelect'
 };
 var _tempScaleCube = [], selectDrawBox = false;
 var _tempScaleLine, _tempSelectLine, _tempSelectCubes=[];
@@ -195,7 +196,7 @@ function cutSelectedWallOld(){
     
 }
 
-var drawModeRun = false, mouseDownDraw=!1 ;
+var drawModeRun = false, mouseDownDraw=!1 ,panMove  ;
 function onDocumentMouseDownDraw (event) {
     if (event.button == 0) {
         event.preventDefault();
@@ -207,10 +208,14 @@ function onDocumentMouseDownDraw (event) {
         raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
 
         switch (_drawMode.mode) {
+            case ControlModes.PanSelect:
+                var intersects = raycaster.intersectObjects([plane] , true);
+                panMove = intersects[0];
+                mouseDownDraw=!0;
+                break;
             case ControlModes.DrawPoly:
                 var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
                 _drawMode.selectedObject = intersects[0];
-                //debugger;
                 // var xdiff = _tempCubes[0].position.x - intersects[0].point.x;
                 // var ydiff = _tempCubes[0].position.y - intersects[0].point.y;
                 // if( (xdiff > 10 || xdiff < -10) && (ydiff > 10 || ydiff < -10) ){}
@@ -582,7 +587,7 @@ function redrawLine () {
     
 
     if (typeof firstPoint !== "undefined") {
-        // return false;
+        return false;
         var floorScale = _floors.floorData[_floors.selectedFloorIndex].scale;
         var distO = Math.sqrt( Math.pow(( endPoint.x - firstPoint.x), 2) + Math.pow((endPoint.y-firstPoint.y), 2) );
         var dist = Math.sqrt( Math.pow(( endPoint.x/floorScale - firstPoint.x/floorScale), 2) + Math.pow((endPoint.y/floorScale-firstPoint.y/floorScale), 2) );
@@ -789,9 +794,22 @@ function onDocumentMouseMoveDraw (event) {
 
     raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
     var intersects = raycaster.intersectObject(plane, true);
+    //var intersects = raycaster.intersectObjects([plane] , true);
     if (intersects.length > 0) {
-        
-        if(selectedPolys.length < 1 && mouseDownDraw && typeof selectPolyCube !== "undefined"){
+        if( ControlModes.PanSelect  === _drawMode.mode && typeof panMove !== "undefined" && mouseDownDraw ){
+            var touchpoint = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
+            // console.log(touchpoint)
+            var xdiff =  touchpoint.x - panMove.point.x;
+            var ydiff =  touchpoint.y - panMove.point.y;
+            
+            var scenex = scene.position.x + xdiff;
+            var sceney = scene.position.y + ydiff;
+            var scenePoint = snapPoint(new THREE.Vector3(scenex, sceney, plane.position.z + _cubeSize / 2), _cubeSize);
+            
+            scene.position.set(scenePoint.x , scenePoint.y , scenePoint.z);
+            panMove = {'point' : touchpoint};
+            //scene.position.set(point.x , point.y , point.z);     
+        }else if(selectedPolys.length < 1 && mouseDownDraw && typeof selectPolyCube !== "undefined"){
             var point = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
             _tempCubes=[];
             $.each(singleSelectWall.cubes , function(i ,cube){

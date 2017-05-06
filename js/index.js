@@ -53,6 +53,7 @@ function init() {
     controls.minAzimuthAngle = Math.PI * (-1 / 8);
     controls.maxAzimuthAngle = Math.PI * (1 / 8);
     controls.enableRotate = false;
+    // controls.noRotate = false;
 
     var ambientLight = new THREE.AmbientLight(0xffffff);
     ambientLight.name = "ambientlight";
@@ -215,6 +216,13 @@ function bindListeners () {
         // cutSelectedWall();
         _drawMode.mode = ControlModes.CutPoly;
     });
+
+    $('.panSelect').click( function () {
+        // cutSelectedWall();
+        _drawMode.mode = ControlModes.PanSelect;
+    });
+
+    
 
     $('.device').click(function () {
         $('#deviceMenu')[0].removeAttribute('hidden');
