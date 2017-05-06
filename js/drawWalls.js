@@ -552,7 +552,13 @@ function redrawLine () {
     for (var i = 0; i < _tempCubes.length; i++) {
         endPoint = snapPoint(_tempCubes[i].position, _cubeSize);
         geometry.vertices.push(endPoint);
+        
         firstPoint = firstPoint || endPoint;
+        if(typeof firstPoint !== "undefined" && firstPoint !== endPoint){
+            //wallInfoCalc( firstPoint , endPoint , _tempCubes[i].id  );
+        }
+        firstPoint = endPoint;
+
     }
     
     //if (_drawMode.mode === ControlModes.DrawPoly && typeof endPoint !== "undefined") {
@@ -584,34 +590,39 @@ function redrawLine () {
         scene.add(_tempLine);
         //console.log(_tempLine.name , scene.getO);
     }
-    
+    reCalcWallInfo();
 
-    if (typeof firstPoint !== "undefined") {
-        return false;
-        var floorScale = _floors.floorData[_floors.selectedFloorIndex].scale;
-        var distO = Math.sqrt( Math.pow(( endPoint.x - firstPoint.x), 2) + Math.pow((endPoint.y-firstPoint.y), 2) );
-        var dist = Math.sqrt( Math.pow(( endPoint.x/floorScale - firstPoint.x/floorScale), 2) + Math.pow((endPoint.y/floorScale-firstPoint.y/floorScale), 2) );
-        //console.log(distO , dist);
-        var x = (endPoint.x + firstPoint.x)/2;
-        var y =  (endPoint.y + firstPoint.y)/2;
-
-        endPoint = snapXYZ(x, y, z, _cubeSize);
-        var wallname = _tempLine.name;
-        if(drawModeRun || _drawMode.mode == ControlModes.DrawContinuePoly){
-            wallname = "_temp";
-        }
-        if (typeof _drawMode.selectedObject  !== "undefined"){
-            showWallInfo(endPoint , wallname ,dist);
-        }else{
-            setTimeout(function(){
-                showWallInfo(endPoint , wallname ,dist);
-            } , 1000);
-        }
-    }
+    // if (typeof firstPoint !== "undefined") {
+    //     wallInfoCalc( firstPoint , endPoint  );
+    // }
 
 }
 
-function showWallInfo(endPoint , wallname ,dist){
+function wallInfoCalc(firstPoint , endPoint,  wallPointId){
+    var z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
+    var floorScale = _floors.floorData[_floors.selectedFloorIndex].scale;
+    var distO = Math.sqrt( Math.pow(( endPoint.x - firstPoint.x), 2) + Math.pow((endPoint.y-firstPoint.y), 2) );
+    var dist = Math.sqrt( Math.pow(( endPoint.x/floorScale - firstPoint.x/floorScale), 2) + Math.pow((endPoint.y/floorScale-firstPoint.y/floorScale), 2) );
+    //console.log(distO , dist);
+    var x = (endPoint.x + firstPoint.x)/2;
+    var y =  (endPoint.y + firstPoint.y)/2;
+
+    endPoint = snapXYZ(x, y, z, _cubeSize);
+    var wallname = wallPointId;
+    if(drawModeRun || _drawMode.mode == ControlModes.DrawContinuePoly){
+        wallname = "_temp";
+    }
+    if (typeof _drawMode.selectedObject  !== "undefined"){
+        showWallInfo(endPoint , wallname ,dist);
+    }else{
+        setTimeout(function(){
+            showWallInfo(endPoint , wallname ,dist);
+        } , 1000);
+    }
+} 
+
+
+function showWallInfo2(endPoint , wallname ,dist){
     var fontLoader = new THREE.FontLoader();
     var textname="wallinfo_"+wallname;
     var textObj = scene.getObjectByName(textname);
@@ -650,7 +661,7 @@ function showWallInfo(endPoint , wallname ,dist){
     */
 }
 
-function showWallInfo2(endPoint , wallname ,dist) {
+function showWallInfo(endPoint , wallname ,dist) {
     // console.log("showWallInfo" ,endPoint);
     var vector = new THREE.Vector3();
     var widthHalf = 0.5 * renderer.context.canvas.width;
@@ -703,6 +714,29 @@ function showWallInfo2(endPoint , wallname ,dist) {
 
 
     */
+}
+
+function reCalcWallInfo(){
+    var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
+    
+    $("div[id^=showWallPos_]").remove();
+    $.each(scene.children  , function( i , obj){
+        if(obj.type == "Line"){
+            $.each(polys , function(i , poly){
+                if(obj == poly.line){
+                    var firstPoint  , endPoint;
+                    $.each(poly.cubes , function(i , cube){
+                        endPoint = cube.position;
+                        if(typeof firstPoint !== "undefined"){
+                            console.log(firstPoint , endPoint);
+                            wallInfoCalc(firstPoint , endPoint , cube.id);
+                        }
+                        firstPoint = endPoint;
+                    });
+                }
+            })
+        }
+    });
 }
 
 var continueLinePoly;
@@ -866,7 +900,8 @@ function onDocumentMouseMoveDraw (event) {
                     scene.add(newCube);
 
                     //remove old voxel;
-                    scene.remove(cube);
+                    // scene.remove(cube);
+                    removePoint(cube);
                 });
                 scene.remove(singleSelectWall.line);
                 redrawLine();
@@ -988,6 +1023,12 @@ function onDocumentMouseMoveDraw (event) {
     }
 }
 
+function removePoint(_tempcube){
+    $("#showWallPos_"+_tempcube.id).remove();
+    scene.remove(_tempcube);
+    
+}
+
 function onDocumentMouseUpDraw(event) {
     event.preventDefault();
 // debugger;
@@ -1006,6 +1047,7 @@ function onDocumentMouseUpDraw(event) {
             //remove allscene
             $.each(_tempScaleCube , function(i , cube){
                 scene.remove(cube);
+                //removePoint(_tempcube);
             });
             // scene.remove(_tempScaleCube[0]);
             // scene.remove(_tempScaleCube[1]);
