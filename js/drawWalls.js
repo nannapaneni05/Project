@@ -200,7 +200,6 @@ var drawModeRun = false, mouseDownDraw=!1 ,panMove  ;
 function onDocumentMouseDownDraw (event) {
     if (event.button == 0) {
         event.preventDefault();
-
         lastMouseClick = getTouchPoint(event.clientX, event.clientY);
         _drawMode.mouseX = ((event.clientX - container.offsetLeft) / renderer.domElement.clientWidth) * 2 - 1;
         _drawMode.mouseY = -((event.clientY - container.offsetTop) / renderer.domElement.clientHeight) * 2 + 1;
@@ -214,6 +213,7 @@ function onDocumentMouseDownDraw (event) {
                 mouseDownDraw=!0;
                 break;
             case ControlModes.DrawPoly:
+                showWallInf =!0;
                 var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
                 _drawMode.selectedObject = intersects[0];
                 // var xdiff = _tempCubes[0].position.x - intersects[0].point.x;
@@ -225,6 +225,7 @@ function onDocumentMouseDownDraw (event) {
                 _tempCubes.push(voxel);
 
                 if (drawModeRun == true) {
+                    showWallInf =!1;
                     drawModeRun = false;
                     redrawLine();
                     commitPoly();
@@ -235,6 +236,7 @@ function onDocumentMouseDownDraw (event) {
                 break;
 
             case ControlModes.DrawContinuePoly:
+                showWallInf =!0;
                 var intersects = raycaster.intersectObjects(_allCubes.concat((_tempCubes.concat([plane]))), true);
                 _drawMode.selectedObject = intersects[0];
                 //debugger;
@@ -269,6 +271,7 @@ function onDocumentMouseDownDraw (event) {
                 break;    
    
             case ControlModes.Select:
+                showWallInf =!0;
                 selectWallFunc();
                 if(typeof singleSelectWall !==  "undefined"){
                     removeSelectWallBox();
@@ -549,20 +552,21 @@ function redrawLine () {
     var z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
     var endPoint, firstPoint;
 
+
     for (var i = 0; i < _tempCubes.length; i++) {
+        if(typeof endPoint  !== "undefined"){
+            firstPoint = endPoint;
+        }
         endPoint = snapPoint(_tempCubes[i].position, _cubeSize);
         geometry.vertices.push(endPoint);
-        
-        firstPoint = firstPoint || endPoint;
-        if(typeof firstPoint !== "undefined" && firstPoint !== endPoint){
-            //wallInfoCalc( firstPoint , endPoint , _tempCubes[i].id  );
-        }
-        firstPoint = endPoint;
-
+        firstPoint= firstPoint||endPoint;
     }
     
     //if (_drawMode.mode === ControlModes.DrawPoly && typeof endPoint !== "undefined") {
     if (typeof _drawMode.selectedObject  !== "undefined"){
+        if(typeof endPoint  !== "undefined"){
+            firstPoint = endPoint;
+        }
         endPoint = snapXYZ(_drawMode.selectedObject.point.x, _drawMode.selectedObject.point.y, z, _cubeSize);
         geometry.vertices.push(endPoint);
     }
@@ -590,14 +594,18 @@ function redrawLine () {
         scene.add(_tempLine);
         //console.log(_tempLine.name , scene.getO);
     }
-    reCalcWallInfo();
+    //reCalcWallInfo();
 
     // if (typeof firstPoint !== "undefined") {
-    //     wallInfoCalc( firstPoint , endPoint  );
     // }
-
+    if ( showWallInf ){
+        wallInfoCalc( firstPoint , endPoint , "show" );
+    }else{
+        $("div[id^=showWallPos_]").remove();
+    }
 }
 
+var showWallInf = false;
 function wallInfoCalc(firstPoint , endPoint,  wallPointId){
     var z = _floors.floorData[_floors.selectedFloorIndex].altitude + (_cubeSize / 2);  //hack because cubes aren't lining up with the floor
     var floorScale = _floors.floorData[_floors.selectedFloorIndex].scale;
@@ -612,12 +620,16 @@ function wallInfoCalc(firstPoint , endPoint,  wallPointId){
     if(drawModeRun || _drawMode.mode == ControlModes.DrawContinuePoly){
         wallname = "_temp";
     }
-    if (typeof _drawMode.selectedObject  !== "undefined"){
-        showWallInfo(endPoint , wallname ,dist);
-    }else{
-        setTimeout(function(){
+
+    if(showWallInf){
+        if (typeof _drawMode.selectedObject  !== "undefined"){
             showWallInfo(endPoint , wallname ,dist);
-        } , 1000);
+        }else{
+            setTimeout(function(){
+                showWallInfo(endPoint , wallname ,dist);
+            } , 1000);
+        }
+        
     }
 } 
 
