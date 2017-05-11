@@ -622,14 +622,14 @@ function wallInfoCalc(firstPoint , endPoint,  wallPointId){
     }
 
     if(showWallInf){
-        if (typeof _drawMode.selectedObject  !== "undefined"){
-            showWallInfo(endPoint , wallname ,dist);
+        showWallInfo(endPoint , wallname ,dist);
+        /*if (typeof _drawMode.selectedObject  !== "undefined"){
         }else{
             setTimeout(function(){
                 showWallInfo(endPoint , wallname ,dist);
             } , 1000);
         }
-        
+        */
     }
 } 
 
@@ -741,7 +741,7 @@ function reCalcWallInfo(){
                         endPoint = cube.position;
                         if(typeof firstPoint !== "undefined"){
                             console.log(firstPoint , endPoint);
-                            wallInfoCalc(firstPoint , endPoint , cube.id);
+                            //wallInfoCalc(firstPoint , endPoint , cube.id);
                         }
                         firstPoint = endPoint;
                     });
@@ -841,6 +841,7 @@ function onDocumentMouseMoveDraw (event) {
     raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
     var intersects = raycaster.intersectObject(plane, true);
     //var intersects = raycaster.intersectObjects([plane] , true);
+
     if (intersects.length > 0) {
         if( ControlModes.PanSelect  === _drawMode.mode && typeof panMove !== "undefined" && mouseDownDraw ){
             var touchpoint = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
@@ -1031,6 +1032,38 @@ function onDocumentMouseMoveDraw (event) {
             _tempScaleLine = new THREE.Line(geometry, material);
             _tempScaleLine.name = "tempScaleLine";
             scene.add( _tempScaleLine );
+        }else{
+
+            var polys  = _floors.floorData[0].gridData.polys;
+            var polycube = [] ,  polyline = [];
+            $.each(polys , function(i , poly){
+                polyline.push( poly.line );
+            });
+            
+            if(polyline.length){
+                var intersects = raycaster.intersectObjects(polyline, true);    
+            }
+
+            if (intersects.length > 0) {
+                var obj = intersects[0].object;
+                $.each(polys , function(i , poly){
+                    if(obj == poly.line){
+                        var firstPoint  , endPoint;
+                        $.each(poly.cubes , function(i , cube){
+                            endPoint = cube.position;
+                            if(typeof firstPoint !== "undefined"){
+                                showWallInf=true; 
+                                wallInfoCalc( firstPoint , endPoint , "show" );
+
+    
+                            }
+                            firstPoint = endPoint;
+                        });
+                    }
+                });
+            }else{
+                $("div[id^=showWallPos_]").remove();
+            }
         }
     }
 }
@@ -1043,7 +1076,10 @@ function removePoint(_tempcube){
 
 function onDocumentMouseUpDraw(event) {
     event.preventDefault();
-// debugger;
+    // debugger;
+    if(showWallInf){
+        $("div[id^=showWallPos_]").remove();
+    }
     _drawMode.mouseX = ((event.clientX - container.offsetLeft) / renderer.domElement.clientWidth) * 2 - 1;
     _drawMode.mouseY = -((event.clientY - container.offsetTop) / renderer.domElement.clientHeight) * 2 + 1;
 
@@ -1370,8 +1406,7 @@ function selectWallFunc(){
                 }
             });
 
-                
-
+            
             var singleWall;
             if(polyline.length){
                 var intersects = raycaster.intersectObjects(polyline, true);
