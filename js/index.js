@@ -276,6 +276,12 @@ function bindListeners () {
         showLocation();
     });
 
+    $(document).keydown(function(e){
+        if( e.which === 90 && e.ctrlKey ){
+            callUndo(); 
+        }          
+    });
+
     if ($('#confirmNew').length) {
         $('#confirmNew').dialog({
             autoOpen: false,

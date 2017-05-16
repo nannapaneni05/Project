@@ -22,6 +22,7 @@ var ControlModes = {
 var _tempScaleCube = [], selectDrawBox = false;
 var _tempScaleLine, _tempSelectLine, _tempSelectCubes=[];
 
+var _undo=[];
 function initDrawLine () {
     initCursorVoxel(_cubeSize);
     createPlane();
@@ -76,6 +77,7 @@ function removeSelectWallBox () {
 }
 
 function removeWall (floor) {
+    console.log("remove");
     if(floor.gridData && floor.gridData.polys.length < 1)return false;
 
     if (floor.gridData) {
@@ -228,7 +230,8 @@ function onDocumentMouseDownDraw (event) {
                     showWallInf =!1;
                     drawModeRun = false;
                     redrawLine();
-                    commitPoly();
+                    var  singlePoly= commitPoly();
+                    addUndoLine("createSinglePoly" , singlePoly);
 
                     return false;
                 }
@@ -243,7 +246,11 @@ function onDocumentMouseDownDraw (event) {
                 var voxel = createVoxelAt(_drawMode.selectedObject.point, CubeColors.properties[_currentPen].hex);
                 scene.add(voxel);
                 _tempCubes.push(voxel);
-                commitPoly();
+                
+                if(_tempCubes.length > 1){
+                    var contPoly = commitPoly();
+                    //addUndoLine( "createContPoly" , $.extend({} , contPoly) );
+                }
                 redrawLine();
 
                 // if (drawModeRun == true) {
@@ -337,9 +344,61 @@ function onDocumentMouseDownDraw (event) {
     }
 }
 
-function removeSelectedPoly () {
-    var remPolys=[] , polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
+function hidPolyInfo(){
+    $("div[id^=showWallPos_]").remove();
+}
+
+function callUndo(){
+    showWallInf = false;
+    hidPolyInfo();
+
+    var lastUndo = _undo.pop();
+    var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
     
+
+    if(typeof lastUndo !== "undefined" && lastUndo.type == "createContPoly"){
+        if(typeof lastUndo.polys !== "undefined"){
+            var index = polys.indexOf(lastUndo.polys);
+            if(index){
+                removePolyUndo([polys[index]]);
+                createPolyUndo([lastUndo.polys]);        
+            }
+        }
+    }else if(typeof lastUndo !== "undefined" && lastUndo.type == "createSinglePoly"){
+        if(typeof lastUndo.polys !== "undefined"){
+            var index = polys.indexOf(lastUndo.polys);
+            if(index){
+                removePolyUndo([polys[index]]);
+            }
+        }
+    }else if(typeof lastUndo !== "undefined" && lastUndo.type == "removepoly"){
+        createPolyUndo(lastUndo.polys);        
+    }
+}
+
+function createPolyUndo(lastUndoPolys){
+    if(lastUndoPolys.length){
+        $.each(lastUndoPolys , function(i , poly){
+            $.each(poly.cubes , function( j , cube){
+                cube.material.color = new THREE.Color('red');
+                _tempCubes.push(cube);
+                scene.add(cube);
+            });
+
+            _drawMode.selectedObject = undefined;   
+            redrawLine();
+            commitPoly();
+            _tempLine = undefined; _tempCubes = [];
+        });
+    }
+}
+
+function addUndoLine(typ , polys ){
+    _undo.push({'type' : typ , polys});        
+}
+
+function removePolyUndo (selectedPolys) {
+    var remPolys=[] , polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
     if(selectedPolys.length){
         $.each(selectedPolys , function(i , poly){
             var index = polys.indexOf(poly);
@@ -352,7 +411,26 @@ function removeSelectedPoly () {
         });
         
         saveConfig(true);
+        return false;
+    }
+}    
 
+function removeSelectedPoly () {
+    var remPolys=[] , polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
+    
+    if(selectedPolys.length){
+        addUndoLine("removepoly" , selectedPolys);
+        $.each(selectedPolys , function(i , poly){
+            var index = polys.indexOf(poly);
+            scene.remove(poly.line);
+            $.each(poly.cubes , function(i, cube) {
+                scene.remove(cube);
+            });
+
+            polys.splice(index,1);
+        });
+        
+        saveConfig(true);
         return false;
     }
     /* single select wall remove */
@@ -796,6 +874,7 @@ function commitPoly () {
         _tempCubes = [];
         _tempLine=undefined;
     }
+    return poly;
 }
 
 //initgrid function Cartographer
