@@ -249,7 +249,7 @@ function onDocumentMouseDownDraw (event) {
                 
                 if(_tempCubes.length > 1){
                     var contPoly = commitPoly();
-                    //addUndoLine( "createContPoly" , $.extend({} , contPoly) );
+                    addUndoLine( "createContPoly" , $.extend( true, {} , contPoly) );
                 }
                 redrawLine();
 
@@ -348,6 +348,7 @@ function hidPolyInfo(){
     $("div[id^=showWallPos_]").remove();
 }
 
+var matchPolyIndex;
 function callUndo(){
     showWallInf = false;
     hidPolyInfo();
@@ -355,13 +356,26 @@ function callUndo(){
     var lastUndo = _undo.pop();
     var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
     
-
+    var matchPoly;
     if(typeof lastUndo !== "undefined" && lastUndo.type == "createContPoly"){
         if(typeof lastUndo.polys !== "undefined"){
-            var index = polys.indexOf(lastUndo.polys);
-            if(index){
-                removePolyUndo([polys[index]]);
-                createPolyUndo([lastUndo.polys]);        
+            //var index = polys.indexOf(lastUndo.polys);
+            $.each(polys , function(i , poly){
+                if(poly.polyId ==  lastUndo.polys.polyId ){
+                    matchPoly =  poly;
+                    matchPolyIndex = polys.indexOf(poly);                               
+
+                    if( poly.cubes.length ==  lastUndo.polys.cubes.length ){
+                    //check if last elemnt is createcontpoly
+                        lastUndo = _undo.pop();
+                    }    
+                }
+            });
+
+            if(typeof matchPoly !== "undefined"){
+                callPolyUndo(lastUndo.polys);
+                //removePolyUndo([matchPoly]);
+                //createPolyUndo([lastUndo.polys]);        
             }
         }
     }else if(typeof lastUndo !== "undefined" && lastUndo.type == "createSinglePoly"){
@@ -376,9 +390,35 @@ function callUndo(){
     }
 }
 
+function callPolyUndo(lastpoly){
+    if(lastpoly.polyId){
+        var remPolys=[] , polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
+        $.each(polys , function( i , poly){
+            if(poly.polyId == lastpoly.polyId){
+                scene.remove(poly.line);
+                $.each(poly.cubes , function(i , cube){
+                    scene.remove(cube);
+                });
+            }
+        });
+        //debugger;
+        createPolyUndo([lastpoly]);            
+        //debugger;
+        /*
+        if(lastpoly.cubes.length > 0){
+            $.each(lastpoly.cubes , function(i , cube){
+                _tempCubes.push(cube);
+                scene.add(cube);
+            });
+        }
+        */
+    }
+}
+
 function createPolyUndo(lastUndoPolys){
     if(lastUndoPolys.length){
         $.each(lastUndoPolys , function(i , poly){
+            console.log("call");
             $.each(poly.cubes , function( j , cube){
                 cube.material.color = new THREE.Color('red');
                 _tempCubes.push(cube);
@@ -386,9 +426,15 @@ function createPolyUndo(lastUndoPolys){
             });
 
             _drawMode.selectedObject = undefined;   
+            debugger;
             redrawLine();
-            commitPoly();
-            _tempLine = undefined; _tempCubes = [];
+
+            // if(typeof matchPolyIndex !== "undefined"){
+            //     commitPoly(matchPolyIndex)
+            // }else{
+                commitPoly();
+            // }
+            _tempLine = undefined, _tempCubes = [];
         });
     }
 }
@@ -870,7 +916,6 @@ function commitPoly () {
         lineId:_tempLine.id
     };
     
-    
     //console.log(continueLinePoly);
     if(typeof continueLinePoly == "undefined"){
         if(typeof arguments[0] == "undefined"){
@@ -1156,7 +1201,7 @@ function onDocumentMouseMoveDraw (event) {
                         var firstPoint  , endPoint;
                         $.each(poly.cubes , function(j , cube){
 
-                                console.log(j , intersects[0].point , poly.cubes[j].position , poly.cubes[j+1].position);
+                                // console.log(j , intersects[0].point , poly.cubes[j].position , poly.cubes[j+1].position);
                             var withinLine = checkWithinLine(intersects[0].point , poly.cubes[j] , poly.cubes[j+1]);
                             if(withinLine){
                                 firstPoint = poly.cubes[j].position;
