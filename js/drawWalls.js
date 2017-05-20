@@ -249,6 +249,9 @@ function onDocumentMouseDownDraw (event) {
                 
                 if(_tempCubes.length > 1){
                     var contPoly = commitPoly();
+                    if(_tempCubes.length  == 2){
+                        addUndoLine( "startContPoly" , $.extend( true, {} , contPoly) );
+                    }
                     addUndoLine( "createContPoly" , $.extend( true, {} , contPoly) );
                 }
                 redrawLine();
@@ -285,7 +288,10 @@ function onDocumentMouseDownDraw (event) {
                     mouseDownDraw=!0;
                     removeSelectWallBox();
                     selectDrawBox = false;
-                    
+                    if(singleSelectWall.cubes.length > 0 ){
+                        addUndoLine( "editPoly" , $.extend( true, {} , singleSelectWall) );
+                    }
+
                     return false;
                 }
                 
@@ -357,8 +363,30 @@ function callUndo(){
     var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
     
     var matchPoly;
-    if(typeof lastUndo !== "undefined" && lastUndo.type == "createContPoly"){
+    if(typeof lastUndo !== "undefined" && lastUndo.type == "editPoly"){
+        $.each(polys , function(i , poly){
+                if(poly.polyId ==  lastUndo.polys.polyId ){
+                    matchPoly =  poly;
+                    matchPolyIndex = polys.indexOf(poly);                               
+                }
+            });
+
+            if(typeof matchPoly !== "undefined"){
+                callPolyUndo(lastUndo.polys);
+            }
+
+    }else if(typeof lastUndo !== "undefined" && lastUndo.type == "startContPoly"){
+        $.each(polys , function(i , poly){
+            if(poly.polyId ==  lastUndo.polys.polyId ){
+                scene.remove(poly.line);
+                $.each(poly.cubes , function(i , cube){
+                    scene.remove(cube);
+                });       
+            }
+        });
+    }else if(typeof lastUndo !== "undefined" && lastUndo.type == "createContPoly"){
         if(typeof lastUndo.polys !== "undefined"){
+            
             //var index = polys.indexOf(lastUndo.polys);
             $.each(polys , function(i , poly){
                 if(poly.polyId ==  lastUndo.polys.polyId ){
@@ -381,7 +409,7 @@ function callUndo(){
     }else if(typeof lastUndo !== "undefined" && lastUndo.type == "createSinglePoly"){
         if(typeof lastUndo.polys !== "undefined"){
             var index = polys.indexOf(lastUndo.polys);
-            if(index){
+            if(index >= 0){
                 removePolyUndo([polys[index]]);
             }
         }
@@ -402,7 +430,12 @@ function callPolyUndo(lastpoly){
             }
         });
         //debugger;
-        createPolyUndo([lastpoly]);            
+        console.log(lastpoly.cubes.length);
+        if(lastpoly.cubes.length < 2){
+            
+        }else{
+            createPolyUndo([lastpoly]);            
+        }
         //debugger;
         /*
         if(lastpoly.cubes.length > 0){
@@ -418,21 +451,24 @@ function callPolyUndo(lastpoly){
 function createPolyUndo(lastUndoPolys){
     if(lastUndoPolys.length){
         $.each(lastUndoPolys , function(i , poly){
-            console.log("call");
             $.each(poly.cubes , function( j , cube){
                 cube.material.color = new THREE.Color('red');
                 _tempCubes.push(cube);
                 scene.add(cube);
             });
 
+            var tmpDrawMode = _drawMode.mode;
+            _drawMode.mode=undefined;
             _drawMode.selectedObject = undefined;   
-            debugger;
             redrawLine();
+
+            _drawMode.mode= ControlModes.DrawContinuePoly;
+            commitPoly();
+            _drawMode.mode=tmpDrawMode;
 
             // if(typeof matchPolyIndex !== "undefined"){
             //     commitPoly(matchPolyIndex)
             // }else{
-                commitPoly();
             // }
             _tempLine = undefined, _tempCubes = [];
         });
@@ -742,7 +778,7 @@ function redrawLine () {
         _tempLine = new THREE.Line(geometry, material);
         _tempLine.name = "tempLine_"+((new Date).getMilliseconds());
         scene.add(_tempLine);
-        //console.log(_tempLine.name , scene.getO);
+        //console.log(_tempLine.name );
     }
     //reCalcWallInfo();
 
@@ -1315,9 +1351,10 @@ function onDocumentMouseUpDraw(event) {
             cube.material.color =  new THREE.Color("red");
         });
         
+        
         commitPoly(index);
         singleSelectWall = undefined;
-        }else if (typeof selectPolyCube !== "undefined") {
+    }else if (typeof selectPolyCube !== "undefined") {
         if(intersects.length){
             // var voxel = createVoxelAt(intersects[0].point, "red");
             // scene.add(voxel);
