@@ -289,11 +289,8 @@ function onDocumentMouseDownDraw (event) {
                     removeSelectWallBox();
                     selectDrawBox = false;
                     if(singleSelectWall.cubes.length > 0 ){
-                        // addUndoLine( "editPoly" , $.extend( true, {} , singleSelectWall) );
-                        // addUndoLine( "editPoly" , JSON.parse(JSON.stringify(singleSelectWall)) );
-                        debugger;
+                        addUndoEditPoly(singleSelectWall);
                     }
-
                     return false;
                 }
                 
@@ -350,6 +347,27 @@ function onDocumentMouseDownDraw (event) {
                 break;
         }
     }
+}
+
+
+function addUndoEditPoly(singleSelectWall){
+    var newObj = {};
+    $.each(singleSelectWall , function(name , val){
+        if(typeof val == "object" && "cubes" == name ){
+            if(val.length){
+                newObj[name]=[];
+                $.each(val , function( i ,v){
+                    if("function" == typeof v.clone){
+                        var cube = v.clone();
+                        newObj[name].push(cube);
+                    }
+                });
+            }
+        }else{
+            newObj[name]=val;
+        }
+    });
+    addUndoLine( "editPoly" , newObj );
 }
 
 function hidPolyInfo(){
@@ -465,13 +483,13 @@ function createPolyUndo(lastUndoPolys){
             redrawLine();
 
             _drawMode.mode= ControlModes.DrawContinuePoly;
-            commitPoly();
+            if(typeof matchPolyIndex !== "undefined"){
+                commitPoly(matchPolyIndex)
+            }else{
+                commitPoly();
+            }
             _drawMode.mode=tmpDrawMode;
 
-            // if(typeof matchPolyIndex !== "undefined"){
-            //     commitPoly(matchPolyIndex)
-            // }else{
-            // }
             _tempLine = undefined, _tempCubes = [];
         });
     }
@@ -1613,6 +1631,8 @@ function selectWallFunc(){
                             $.each(poly.cubes , function(j , cube){
                                 cube.material.color = new THREE.Color("silver"); 
                             });
+
+                            //addUndoEditPoly(singleWall);
                         }
                     });
                 }
