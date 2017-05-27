@@ -106,8 +106,13 @@ function cutSelectedWall(topoly  , cutPoint ){
     var polys  = _floors.floorData[0].gridData.polys;
     var polycube = [] ,  polyline = [];
     var toCutWall;
+    var cutVoxel =createVoxelAt( cutPoint , "red")
+                    
+
     $.each(polys , function ( i , poly){
         if(topoly.name === poly.line.name ){
+            poly.cutPoint = cutVoxel
+            addUndoLine("cutPoly" , poly );
             toCutWall = poly;
             scene.remove(poly.line);
 
@@ -130,17 +135,15 @@ function cutSelectedWall(topoly  , cutPoint ){
                 //console.log(diff) ; 
                 if ( diff <  3 && diff > -3 ){
                     //console.log(cutPoint , cube , nextpoint);
-                    var voxel =createVoxelAt( cutPoint , "red")
-                    scene.add(voxel);
-                    _tempCubes.push(voxel);
+                    scene.add(cutVoxel);
+                    _tempCubes.push(cutVoxel);
                     _drawMode.selectedObject = undefined;
                     redrawLine();
                     commitPoly();
                     _tempCubes = [];
 
-                    var voxel =createVoxelAt( cutPoint , "red")
-                    scene.add(voxel);
-                    _tempCubes.push(voxel);
+                    scene.add(cutVoxel);
+                    _tempCubes.push(cutVoxel);
                 }
                 //if(cube.position.x < cutPoint.x &&  nextpoint.x && ){}
             })
@@ -387,6 +390,33 @@ function callUndo(){
         callUndoOriginFunc(lastUndo.intersects);
     }else if(typeof lastUndo !== "undefined" && lastUndo.type == "addScale"){
         callUndoScale(lastUndo.scale);
+    }else if(typeof lastUndo !== "undefined" && lastUndo.type == "cutPoly"){
+        var rmindex=[];
+        $.each(polys , function(i , poly){
+            $.each(poly.cubes , function(j , cube){
+                if(lastUndo.polys.cutPoint.position === cube.position){
+                    $.each(poly.cubes , function(k , rcube){
+                        scene.remove(rcube);
+                    });
+                    scene.remove(poly.line);
+                    var index = polys.indexOf(poly);
+                    rmindex.push(index);
+                    //polys.splice(index , 1);
+                    return false;
+                }
+            });
+        });
+
+        rmindex.reverse()
+        $.each(rmindex , function( i ,index){
+            if(typeof polys[index] !== "undefined" ){
+                polys.splice(index , 1);
+            }
+        })
+
+        createPolyUndo([lastUndo.polys]);
+        //debugger;
+
     }else if(typeof lastUndo !== "undefined" && lastUndo.type == "editPoly"){
         $.each(polys , function(i , poly){
                 if(poly.polyId ==  lastUndo.polys.polyId ){
