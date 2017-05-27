@@ -383,7 +383,11 @@ function callUndo(){
     var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
     
     var matchPoly;
-    if(typeof lastUndo !== "undefined" && lastUndo.type == "editPoly"){
+    if(typeof lastUndo !== "undefined" && lastUndo.type == "addOrigin"){
+        callUndoOriginFunc(lastUndo.intersects);
+    }else if(typeof lastUndo !== "undefined" && lastUndo.type == "addScale"){
+        callUndoScale(lastUndo.scale);
+    }else if(typeof lastUndo !== "undefined" && lastUndo.type == "editPoly"){
         $.each(polys , function(i , poly){
                 if(poly.polyId ==  lastUndo.polys.polyId ){
                     matchPoly =  poly;
@@ -976,7 +980,10 @@ function commitPoly () {
     if(typeof continueLinePoly == "undefined"){
         if(typeof arguments[0] == "undefined"){
             _floors.floorData[_floors.selectedFloorIndex].gridData.polys.push(poly);
-        }else{
+            
+            
+        }else if(typeof _floors.floorData[_floors.selectedFloorIndex].gridData.polys[arguments[0]] !== "undefined"){
+            poly.polyId = _floors.floorData[_floors.selectedFloorIndex].gridData.polys[arguments[0]].polyId;       
             _floors.floorData[_floors.selectedFloorIndex].gridData.polys[arguments[0]] = poly;
         }
 
@@ -1298,7 +1305,7 @@ function onDocumentMouseUpDraw(event) {
     var intersects = raycaster.intersectObject(plane, true);
     
     if (_drawMode.mode == ControlModes.SetScale) {
-        if (_tempScaleCube.length && typeof _tempScaleLine !== "undefined") {
+        if (_tempScaleCube.length > 1 && typeof _tempScaleLine !== "undefined") {
             var distanceX = Math.abs(_tempScaleCube[0].position.x - _tempScaleCube[1].position.x);
             var distanceY = Math.abs(_tempScaleCube[0].position.y - _tempScaleCube[1].position.y);
             var distancePx = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
@@ -1370,7 +1377,6 @@ function onDocumentMouseUpDraw(event) {
         $.each(_tempCubes,  function( i , cube ){
             cube.material.color =  new THREE.Color("red");
         });
-        
         
         commitPoly(index);
         singleSelectWall = undefined;

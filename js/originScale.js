@@ -1,9 +1,19 @@
 /**
  * Created by Vamsi on 3/21/2017.
  */
+var lastOriginIntersect; 
 function setNewOrigin (intersects ) {
     var floor = _floors.floorData[_floors.selectedFloorIndex];
-        
+    
+    if(typeof lastOriginIntersect === "undefined"){
+        lastOriginIntersect = [{'point':{x : 0,  y : 0 , z : 0}}];
+    }
+
+    if(!callUndoOrigin){
+        addUndoOrigin('addOrigin' , lastOriginIntersect);
+        lastOriginIntersect = intersects;    
+    }
+
     /*try    
     originPlane = plane.clone();
     originPlane.position.x -= intersects[0].point.x;
@@ -52,9 +62,32 @@ function setNewOrigin (intersects ) {
     createPlane();
 }
 
+function addUndoOrigin(typ , intersects ){
+    _undo.push({'type' : typ , 'intersects' : intersects});        
+}
+
+var callUndoOrigin = false;
+function callUndoOriginFunc(intersects){
+    callUndoOrigin = true;
+    setNewOrigin(intersects);
+    callUndoOrigin = false;
+}
+
+
+
+function addUndoScale(typ , scale ){
+    _undo.push({'type' : typ , 'scale' : scale});        
+}
+
+function callUndoScale(newScale){
+    var floor = _floors.floorData[_floors.selectedFloorIndex];
+    floor.scale = newScale; // Appearance of floor in canvas is unchanged.
+    reloadConfig();
+}
 
 function setNewScale (distance ,distancePx) {
     var floor = _floors.floorData[_floors.selectedFloorIndex];
+    addUndoScale("addScale" ,  floor.scale );
     var oldScale = floor.scale;
     var newScale = distancePx / distance;
 
