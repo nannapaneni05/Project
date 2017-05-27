@@ -292,7 +292,11 @@ function onDocumentMouseDownDraw (event) {
                     removeSelectWallBox();
                     selectDrawBox = false;
                     if(singleSelectWall.cubes.length > 0 ){
-                        addUndoEditPoly(singleSelectWall);
+                        if(typeof selectedPolys !== "undefined" && selectedPolys.length > 1){
+                            addUndoEditPoly(selectedPolys);
+                        }else{
+                            addUndoEditPoly([singleSelectWall]);
+                        }
                     }
                     return false;
                 }
@@ -353,24 +357,31 @@ function onDocumentMouseDownDraw (event) {
 }
 
 
-function addUndoEditPoly(singleSelectWall){
-    var newObj = {};
-    $.each(singleSelectWall , function(name , val){
-        if(typeof val == "object" && "cubes" == name ){
-            if(val.length){
-                newObj[name]=[];
-                $.each(val , function( i ,v){
-                    if("function" == typeof v.clone){
-                        var cube = v.clone();
-                        newObj[name].push(cube);
+function addUndoEditPoly(selectWall){
+    var newObj = [];
+    if(selectWall.length){
+        $.each(selectWall , function(j , singleSelectWall){
+            newObj[j]={};
+            $.each(singleSelectWall , function(name , val){
+                if(typeof val == "object" && "cubes" == name ){
+                    if(val.length){
+                        newObj[j][name]=[];
+                        $.each(val , function( i ,v){
+                            if("function" == typeof v.clone){
+                                var cube = v.clone();
+                                newObj[j][name].push(cube);
+                            }
+                        });
                     }
-                });
-            }
-        }else{
-            newObj[name]=val;
-        }
-    });
-    addUndoLine( "editPoly" , newObj );
+                }else{
+                    newObj[j][name]=val;
+                }
+            });
+        });
+
+        addUndoLine( "editPoly" , newObj );
+        
+    }
 }
 
 function hidPolyInfo(){
@@ -418,16 +429,22 @@ function callUndo(){
         //debugger;
 
     }else if(typeof lastUndo !== "undefined" && lastUndo.type == "editPoly"){
-        $.each(polys , function(i , poly){
-                if(poly.polyId ==  lastUndo.polys.polyId ){
-                    matchPoly =  poly;
-                    matchPolyIndex = polys.indexOf(poly);                               
+        
+        if(lastUndo.polys.length > 0){
+            $.each(lastUndo.polys , function(k , lastundoPoly ){
+                $.each(polys , function(i , poly){
+                    if(poly.polyId ==  lastundoPoly.polyId ){
+                        matchPoly =  poly;
+                        matchPolyIndex = polys.indexOf(poly);                               
+                    }
+                });
+
+                if(typeof matchPoly !== "undefined"){
+                    callPolyUndo(lastundoPoly , lastUndo.type);
                 }
             });
-
-            if(typeof matchPoly !== "undefined"){
-                callPolyUndo(lastUndo.polys , lastUndo.type);
-            }
+            
+        }
 
     }else if(typeof lastUndo !== "undefined" && lastUndo.type == "startContPoly"){
         $.each(polys , function(i , poly){
@@ -517,6 +534,7 @@ function createPolyUndo(lastUndoPolys){
             redrawLine();
 
             _drawMode.mode= ControlModes.DrawContinuePoly;
+            console.log("commit : " +matchPolyIndex)
             if(typeof matchPolyIndex !== "undefined"){
                 commitPoly(matchPolyIndex)
             }else{
