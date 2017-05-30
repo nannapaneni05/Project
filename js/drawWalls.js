@@ -201,7 +201,7 @@ function cutSelectedWallOld(){
     
 }
 
-var drawModeRun = false, mouseDownDraw=!1 ,panMove  ;
+var drawModeRun = false, mouseDownDraw=!1 ,panMove,selectedDevice;
 function onDocumentMouseDownDraw (event) {
     if (event.button == 0) {
         event.preventDefault();
@@ -212,6 +212,12 @@ function onDocumentMouseDownDraw (event) {
         raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
 
         switch (_drawMode.mode) {
+            case ControlModes.MoveDevice:
+                var intersects = raycaster.intersectObjects(_devices.meshList , true);
+                if(typeof intersects[0].object == "object"){
+                    selectedDevice = intersects[0].object;
+                    mouseDownDraw=!0;
+                }
             case ControlModes.PanSelect:
                 var intersects = raycaster.intersectObjects([plane] , true);
                 panMove = intersects[0];
@@ -1104,7 +1110,12 @@ function onDocumentMouseMoveDraw (event) {
     //var intersects = raycaster.intersectObjects([plane] , true);
 
     if (intersects.length > 0) {
-        if( ControlModes.PanSelect  === _drawMode.mode && typeof panMove !== "undefined" && mouseDownDraw ){
+        if( ControlModes.MoveDevice  === _drawMode.mode && typeof selectedDevice !== "undefined" && mouseDownDraw ){
+            var touchpoint = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
+                
+            selectedDevice.position.set(touchpoint.x , touchpoint.y, touchpoint.z ); 
+            //console.log(touchpoint);
+        }else if( ControlModes.PanSelect  === _drawMode.mode && typeof panMove !== "undefined" && mouseDownDraw ){
             var touchpoint = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
             // console.log(touchpoint)
             var xdiff =  touchpoint.x - panMove.point.x;
@@ -1352,7 +1363,10 @@ function onDocumentMouseUpDraw(event) {
     raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
     var intersects = raycaster.intersectObject(plane, true);
     
-    if (_drawMode.mode == ControlModes.SetScale) {
+    if(typeof selectedDevice !=="undefined" ){
+        selectedDevice=undefined;
+        
+    }else if (_drawMode.mode == ControlModes.SetScale) {
         if (_tempScaleCube.length > 1 && typeof _tempScaleLine !== "undefined") {
             var distanceX = Math.abs(_tempScaleCube[0].position.x - _tempScaleCube[1].position.x);
             var distanceY = Math.abs(_tempScaleCube[0].position.y - _tempScaleCube[1].position.y);
