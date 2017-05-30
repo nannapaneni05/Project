@@ -1114,6 +1114,7 @@ function onDocumentMouseMoveDraw (event) {
             var touchpoint = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
                 
             selectedDevice.position.set(touchpoint.x , touchpoint.y, touchpoint.z ); 
+            selectedDevice.deviceOutline.copy(selectedDevice);
             //console.log(touchpoint);
         }else if( ControlModes.PanSelect  === _drawMode.mode && typeof panMove !== "undefined" && mouseDownDraw ){
             var touchpoint = snapPoint(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y, plane.position.z + _cubeSize / 2), _cubeSize);
@@ -1365,7 +1366,7 @@ function onDocumentMouseUpDraw(event) {
     
     if(typeof selectedDevice !=="undefined" ){
         selectedDevice=undefined;
-        
+
     }else if (_drawMode.mode == ControlModes.SetScale) {
         if (_tempScaleCube.length > 1 && typeof _tempScaleLine !== "undefined") {
             var distanceX = Math.abs(_tempScaleCube[0].position.x - _tempScaleCube[1].position.x);
