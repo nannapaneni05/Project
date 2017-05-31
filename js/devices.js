@@ -59,7 +59,10 @@ function addUndoDevice(typ , device ){
 }
 
 function callUndoDevices(lastundo){
-    if(lastundo.type === "addDevice" && typeof lastundo.device == "object" ){
+    if(lastundo.type === "moveDevice" && typeof lastundo.device == "object" ){
+        lastundo.device.device.position.set(lastundo.device.position.x , lastundo.device.position.y ,lastundo.device.position.z  );
+        lastundo.device.device.deviceOutline.position.set(lastundo.device.position.x , lastundo.device.position.y ,lastundo.device.position.z  );
+    }else if(lastundo.type === "addDevice" && typeof lastundo.device == "object" ){
         var index = _devices.meshList.indexOf(lastundo.device);
         _devices.meshList.splice(index ,1);
         _devices.deviceList.splice(index ,1);

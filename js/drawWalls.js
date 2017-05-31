@@ -212,12 +212,13 @@ function onDocumentMouseDownDraw (event) {
         raycaster.setFromCamera(new THREE.Vector2(_drawMode.mouseX, _drawMode.mouseY), camera);
 
         switch (_drawMode.mode) {
-            case ControlModes.MoveDevice:
-                var intersects = raycaster.intersectObjects(_devices.meshList , true);
-                if(typeof intersects[0].object == "object"){
-                    selectedDevice = intersects[0].object;
-                    mouseDownDraw=!0;
-                }
+            // case ControlModes.MoveDevice:
+            //     var intersects = raycaster.intersectObjects(_devices.meshList , true);
+            //     if(typeof intersects[0].object == "object"){
+            //         selectedDevice = intersects[0].object;
+                    
+            //         mouseDownDraw=!0;
+            //     }
             case ControlModes.PanSelect:
                 var intersects = raycaster.intersectObjects([plane] , true);
                 panMove = intersects[0];
@@ -334,6 +335,8 @@ function onDocumentMouseDownDraw (event) {
                 if (intersects[0].object.name.startsWith("device_")) {
                     //console.log(intersects[0].object);
                     _selectedDragDevice = intersects[0].object;
+                    var obj = {'device' : $.extend( true, {} , intersects[0].object) , 'position':$.extend( true, {} , intersects[0].object.position) }
+                    addUndoDevice('moveDevice' , obj);
 
                 }
                 break;
