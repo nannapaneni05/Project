@@ -406,7 +406,10 @@ function callUndo(){
     var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
     
     var matchPoly;
-    if(typeof lastUndo !== "undefined" && ( (lastUndo.type == "addDevice") || (lastUndo.type == "deleteDevice" ) || (lastUndo.type == "moveDevice" ) )  ){
+    
+    if(typeof lastUndo !== "undefined" && ( (lastUndo.type == "addImgLoad")  )  ){
+        callUndoImgLoad(lastUndo);
+    }else if(typeof lastUndo !== "undefined" && ( (lastUndo.type == "addDevice") || (lastUndo.type == "deleteDevice" ) || (lastUndo.type == "moveDevice" ) )  ){
         callUndoDevices(lastUndo);
     
     }else if(typeof lastUndo !== "undefined" && lastUndo.type == "addOrigin"){
