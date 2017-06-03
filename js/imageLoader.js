@@ -21,11 +21,14 @@ function addUndoImgLoad(typ , imgsrc ){
 
 function callUndoImgLoad(lastundo){
     if(lastundo.type == "addImgLoad" ){
-        if(lastundo.imgsrc == ""){
-            _floors.floorData[0].mesh.material.map.image.currentSrc
-        }else{
+        loadImage(_defaultFloor.imageURL);
+        //_floors.floorData[0] = _defaultFloor;
+        //reloadConfig();
+        // if(lastundo.imgsrc == ""){
+        //     _floors.floorData[0].mesh.material.map.image.currentSrc;
+        // }else{
 
-        }
+        // }
     }
 }
 
@@ -37,18 +40,22 @@ function callUndoImgLoad(lastundo){
 // }
 
 
+
+
 function loadImage(image, altitude) {
-    // debugger;
     var domURL = window.URL || window.webkitURL || window;
-    var url = domURL.createObjectURL(image);
+    var url = image;
+    if(typeof image == "object"){
+        var url = domURL.createObjectURL(image);
+    }
     var img = new Image();
     img.src = url;
     img.onload = function () {
-
         var imageWidth = img.naturalWidth, imageHeight = img.naturalHeight;
         var loader = new THREE.TextureLoader();
+        addUndoImgLoad("addImgLoad" , '' );
 
-
+        _floors.clear();
         loader.load(url, function (floorTexture) {
             // Delete the default floor if still present in this config. This is done here so that index 0 is free for the first user-defined floor.
 

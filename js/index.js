@@ -185,7 +185,6 @@ function bindListeners () {
         setDropDown();
     });
     $('#loadFloorImage').change( function () {
-        _floors.clear();
         var file = $('#loadFloorImage').get(0).files[0];
         if (file) {
             loadImage(file);

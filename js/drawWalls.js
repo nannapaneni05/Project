@@ -403,7 +403,10 @@ function callUndo(){
     hidPolyInfo();
 
     var lastUndo = _undo.pop();
-    var polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
+    var polys=[];
+    if(typeof _floors.floorData[_floors.selectedFloorIndex].gridData !== "undefined"){
+        polys = _floors.floorData[_floors.selectedFloorIndex].gridData.polys;
+    }
     
     var matchPoly;
     
@@ -1110,6 +1113,8 @@ function createPlane () {
 var selectPolyCubeIndex,tmpLineArr = [];
 function onDocumentMouseMoveDraw (event) {
     event.preventDefault();
+
+    if(typeof _floors.floorData[0].gridData == "undefined")return false;
 
     _drawMode.mouseX = ((event.clientX - container.offsetLeft) / renderer.domElement.clientWidth) * 2 - 1;
     _drawMode.mouseY = -((event.clientY - container.offsetTop) / renderer.domElement.clientHeight) * 2 + 1;
