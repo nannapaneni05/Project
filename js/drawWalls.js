@@ -467,12 +467,16 @@ function callUndo(){
     }else if(typeof lastUndo !== "undefined" && lastUndo.type == "startContPoly"){
         $.each(polys , function(i , poly){
             if(poly.polyId ==  lastUndo.polys.polyId ){
+                matchPolyIndex = polys.indexOf(poly);
                 scene.remove(poly.line);
                 $.each(poly.cubes , function(i , cube){
                     scene.remove(cube);
                 });       
             }
         });
+        
+        polys.splice(matchPolyIndex  ,1);
+        saveConfig(true);
     }else if(typeof lastUndo !== "undefined" && lastUndo.type == "createContPoly"){
         if(typeof lastUndo.polys !== "undefined"){
             
@@ -518,10 +522,9 @@ function callPolyUndo(lastpoly ,lastUndotype){
                 });
             }
         });
-        //debugger;
-        console.log(lastpoly.cubes.length);
+
         if(lastpoly.cubes.length < 2 && lastUndotype == "createContPoly"){
-            
+             polys.splice(matchPolyIndex , 1);
         }else{
             createPolyUndo([lastpoly]);            
         }
@@ -552,7 +555,7 @@ function createPolyUndo(lastUndoPolys){
             redrawLine();
 
             _drawMode.mode= ControlModes.DrawContinuePoly;
-            console.log("commit : " +matchPolyIndex)
+            //console.log("commit : " +matchPolyIndex)
             if(typeof matchPolyIndex !== "undefined"){
                 commitPoly(matchPolyIndex)
             }else{
