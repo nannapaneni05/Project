@@ -399,6 +399,7 @@ function hidPolyInfo(){
 
 var matchPolyIndex;
 function callUndo(){
+    continueLinePoly = undefined;
     showWallInf = false;
     hidPolyInfo();
 
