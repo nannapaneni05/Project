@@ -19,9 +19,12 @@ function addUndoImgLoad(typ , imgsrc ){
     _undo.push({'type' : typ , 'imgsrc' : imgsrc});        
 }
 
+var callUndoRunning =0;
 function callUndoImgLoad(lastundo){
     if(lastundo.type == "addImgLoad" ){
+        callUndoRunning=1;
         loadImage(_defaultFloor.imageURL);
+        callUndoRunning=0;
         //_floors.floorData[0] = _defaultFloor;
         //reloadConfig();
         // if(lastundo.imgsrc == ""){
@@ -50,10 +53,13 @@ function loadImage(image, altitude) {
     }
     var img = new Image();
     img.src = url;
+    if(callUndoRunning !== 1){
+        addUndoImgLoad("addImgLoad" , '' );
+    }
+    
     img.onload = function () {
         var imageWidth = img.naturalWidth, imageHeight = img.naturalHeight;
         var loader = new THREE.TextureLoader();
-        addUndoImgLoad("addImgLoad" , '' );
 
         _floors.clear();
         loader.load(url, function (floorTexture) {

@@ -1105,7 +1105,7 @@ function createPlane () {
     plane.name = "plane";
     scene.add(plane);
 
-    if (typeof selectedFloor.gridData === "undefined" || typeof selectedFloor.gridData.devices === "undefined") {
+    if (typeof selectedFloor.gridData === "undefined") {
         selectedFloor.gridData = {
             'polys': [],
             'plane': plane,
